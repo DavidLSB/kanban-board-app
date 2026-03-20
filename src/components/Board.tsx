@@ -1,3 +1,5 @@
+import Column from "./Column"
+
 function Board() {
     const columns = ["To Do", "Doing", "Done"] //temporarely hard coded
     return (
@@ -10,11 +12,7 @@ function Board() {
             width: "1000px"
         }}>
             {columns.map((column) => (
-                <div key={column} style={{
-                    border: "1px solid gray",
-                }}>
-                    <h2>{column}</h2>
-                </div>
+                <Column key={column} title={column} width={300} />
             ))}
         </div>
     )
