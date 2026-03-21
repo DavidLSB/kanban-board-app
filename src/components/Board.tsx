@@ -1,14 +1,20 @@
 import Column from "./Column"
+import type { Task } from "./Task"
 
 function Board() {
-    const columns = [
+    const columns: { title: string, tasks: Task[] }[] = [
     {
         title: "To Do",
-        tasks: ["Task A", "Task B"]
+        tasks: [
+            { id: "1", title: "Task A" },
+            { id: "2", title: "Task B" }
+        ]
     },
     {
         title: "Doing",
-        tasks: ["Task C"]
+        tasks: [
+            { id: "3", title: "Task C" }
+        ]
     },
     {
         title: "Done",

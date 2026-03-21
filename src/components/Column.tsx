@@ -1,7 +1,9 @@
+import type { Task } from "./Task"
+
 type ColumnProps = {
     title: string
     width: number
-    tasks: string[]
+    tasks: Task[]
 }
 
 function Column({ title, width, tasks }: ColumnProps) {
@@ -14,12 +16,12 @@ function Column({ title, width, tasks }: ColumnProps) {
             <h2>{title}</h2>
 
             {tasks.map((task) => (
-                <div key={task} style={{
+                <div key={task.id} style={{
                     border: "1px solid black",
                     marginTop: "10px",
                     padding: "5px"
                 }}>
-                    {task}
+                    {task.title}
                 </div>
             ))}
         </div>
