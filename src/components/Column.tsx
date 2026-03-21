@@ -1,11 +1,10 @@
 type ColumnProps = {
     title: string
     width: number
+    tasks: string[]
 }
 
-function Column({title, width}: ColumnProps) {
-    const tasks = ["Task 1", "Task 2"] // hardcoded por ahora
-
+function Column({ title, width, tasks }: ColumnProps) {
     return (
         <div style={{
             border: "1px solid gray",

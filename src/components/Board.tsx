@@ -1,7 +1,20 @@
 import Column from "./Column"
 
 function Board() {
-    const columns = ["To Do", "Doing", "Done"] //temporarely hard coded
+    const columns = [
+    {
+        title: "To Do",
+        tasks: ["Task A", "Task B"]
+    },
+    {
+        title: "Doing",
+        tasks: ["Task C"]
+    },
+    {
+        title: "Done",
+        tasks: []
+    }
+    ] //temporarely hard coded
     return (
         <div 
             style={{
@@ -12,7 +25,7 @@ function Board() {
             width: "1000px"
         }}>
             {columns.map((column) => (
-                <Column key={column} title={column} width={300} />
+                <Column tasks={column.tasks} key={column.title} title={column.title} width={300} />
             ))}
         </div>
     )
