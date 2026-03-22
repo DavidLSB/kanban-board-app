@@ -1,8 +1,9 @@
+import { useState } from "react"
 import Column from "./Column"
 import type { Task } from "./Task"
 
 function Board() {
-    const columns: { title: string, tasks: Task[] }[] = [
+    const [columns, setColumns] = useState<{ title: string, tasks: Task[] }[]>([
     {
         title: "To Do",
         tasks: [
@@ -20,7 +21,7 @@ function Board() {
         title: "Done",
         tasks: []
     }
-    ] //temporarely hard coded
+    ])
     return (
         <div 
             style={{
