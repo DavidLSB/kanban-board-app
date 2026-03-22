@@ -3,8 +3,7 @@ import Column from "./Column"
 import type { Task } from "./Task"
 
 function Board() {
-    const [columns, setColumns] = useState<{ title: string, tasks: Task[] }[]>([
-    {
+    const [columns, setColumns] = useState<{ title: string, tasks: Task[] }[]>([{
         title: "To Do",
         tasks: [
             { id: "1", title: "Task 1" },
@@ -22,16 +21,20 @@ function Board() {
         tasks: []
     }
     ])
+    const [newTaskTitle, setNewTaskTitle] = useState("")
     function addTask() {
+        if (!newTaskTitle.trim()) return
+
         const newTask = {
             id: Date.now().toString(),
-            title: `Task ${columns[0].tasks.length + 2}`
+            title: newTaskTitle
         }
 
         const newColumns = [...columns]
         newColumns[0].tasks.push(newTask) // temporarely always on 'To Do' column
 
         setColumns(newColumns)
+        setNewTaskTitle("")
     }
 
     return (
@@ -48,6 +51,11 @@ function Board() {
                     <Column tasks={column.tasks} key={column.title} title={column.title} width={300} />
                 ))}
             </div>
+            <input
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                placeholder="Enter task title"
+            />
             <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
         </div>
     )
