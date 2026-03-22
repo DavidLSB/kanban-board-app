@@ -36,6 +36,18 @@ function Board() {
         setColumns(newColumns)
         setNewTaskTitle("")
     }
+    function deleteTask(taskId: string, columnTitle: string) {
+        const newColumns = columns.map((column) => {
+            if (column.title !== columnTitle) return column
+
+            return {
+            ...column,
+            tasks: column.tasks.filter((t) => t.id !== taskId)
+        }
+    })
+
+    setColumns(newColumns)
+    }
 
     return (
         <div>
@@ -48,12 +60,18 @@ function Board() {
                 width: "1000px"
             }}>
                 {columns.map((column) => (
-                    <Column tasks={column.tasks} key={column.title} title={column.title} width={300} />
+                    <Column 
+                        tasks={column.tasks} 
+                        key={column.title} 
+                        title={column.title} 
+                        width={300}
+                        onDeleteTask={deleteTask}
+                    />
                 ))}
             </div>
             <input
                 value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onChange={(event) => setNewTaskTitle(event.target.value)}
                 placeholder="Enter task title"
             />
             <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
