@@ -1,9 +1,10 @@
-import type { Task } from "./Task"
+import Task from "./Task"
+import type { Task as TaskType } from "./Task"
 
 type ColumnProps = {
     title: string
     width: number
-    tasks: Task[]
+    tasks: TaskType[]
     onDeleteTask: (taskId: string, columnTitle: string) => void
 }
 
@@ -17,17 +18,11 @@ function Column({ title, width, tasks, onDeleteTask }: ColumnProps) {
             <h2>{title}</h2>
 
             {tasks.map((task) => (
-                <div key={task.id} style={{
-                    border: "1px solid black",
-                    marginTop: "10px",
-                    padding: "5px"
-                }}>
-                    {task.title}
-
-                    <button onClick={() => onDeleteTask(task.id, title)}>
-                        Delete
-                    </button>
-                </div>
+                <Task
+                    key={task.id}
+                    task={task}
+                    onDelete={(taskId) => onDeleteTask(taskId, title)}
+                />
             ))}
         </div>
     )
