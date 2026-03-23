@@ -6,9 +6,11 @@ type ColumnProps = {
     width: number
     tasks: TaskType[]
     onDeleteTask: (taskId: string, columnTitle: string) => void
+    onMoveTask: (taskId: string, fromColumn: string, toColumn: string) => void
+    onMoveTaskAdjacent: (taskId: string, fromColumn: string, direction: "left" | "right") => void
 }
 
-function Column({ title, width, tasks, onDeleteTask }: ColumnProps) {
+function Column({ title, width, tasks, onDeleteTask, onMoveTask, onMoveTaskAdjacent }: ColumnProps) {
     return (
         <div style={{
             border: "1px solid gray",
@@ -22,6 +24,8 @@ function Column({ title, width, tasks, onDeleteTask }: ColumnProps) {
                     key={task.id}
                     task={task}
                     onDelete={(taskId) => onDeleteTask(taskId, title)}
+                    onMove={(toColumn) => onMoveTask(task.id, title, toColumn)}
+                    onMoveAdjacent={(direction) => onMoveTaskAdjacent(task.id, title, direction)}
                 />
             ))}
         </div>

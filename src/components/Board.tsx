@@ -48,7 +48,49 @@ function Board() {
 
     setColumns(newColumns)
     }
+    function moveTaskToColumn(taskId: string, fromColumn: string, toColumn: string) {
+        const taskToMove = columns
+            .find(c => c.title === fromColumn)
+            ?.tasks.find(t => t.id === taskId)
 
+        if (!taskToMove) return
+
+        const newColumns = columns.map(column => {
+            if (column.title === fromColumn) {
+            return {
+                ...column,
+                tasks: column.tasks.filter(t => t.id !== taskId)
+            }
+            }
+
+            if (column.title === toColumn) {
+            return {
+                ...column,
+                tasks: [...column.tasks, taskToMove]
+            }
+            }
+
+            return column
+        })
+
+        setColumns(newColumns)
+    }
+    function moveTaskAdjacent(taskId: string, fromColumn: string, direction: "left" | "right") {
+        const index = columns.findIndex(c => c.title === fromColumn)
+
+        let targetIndex: number;
+        if (direction === "left") {
+            targetIndex = index - 1;
+        } else {
+            targetIndex = index + 1;
+        }
+
+        if (targetIndex < 0 || targetIndex >= columns.length) return
+
+        const targetColumn = columns[targetIndex].title
+
+        moveTaskToColumn(taskId, fromColumn, targetColumn)
+    }
     return (
         <div>
             <div 
@@ -66,6 +108,8 @@ function Board() {
                         title={column.title} 
                         width={300}
                         onDeleteTask={deleteTask}
+                        onMoveTask={moveTaskToColumn}
+                        onMoveTaskAdjacent={moveTaskAdjacent}
                     />
                 ))}
             </div>
