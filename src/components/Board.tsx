@@ -101,7 +101,7 @@ function Board() {
                 padding: "10px",
                 width: "1000px"
             }}>
-                {columns.map((column) => (
+                {columns.map((column, index) => (
                     <Column 
                         tasks={column.tasks} 
                         key={column.title} 
@@ -110,6 +110,8 @@ function Board() {
                         onDeleteTask={deleteTask}
                         onMoveTask={moveTaskToColumn}
                         onMoveTaskAdjacent={moveTaskAdjacent}
+                        columnIndex={index}
+                        totalColumns={columns.length}
                     />
                 ))}
             </div>
