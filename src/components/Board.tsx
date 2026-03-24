@@ -4,31 +4,32 @@ import type { Task } from "./Task"
 
 function Board() {
     const [columns, setColumns] = useState<{ title: string, tasks: Task[] }[]>([{
-        title: "To Do",
-        tasks: [
-            { id: "1", title: "Task 1" },
-            { id: "2", title: "Task 2" }
-        ]
-    },
-    {
-        title: "Doing",
-        tasks: [
-            { id: "3", title: "Task 3" }
-        ]
-    },
-    {
-        title: "Done",
-        tasks: []
-    }
+            title: "To Do",
+            tasks: [
+                { id: "1", title: "Task 1", description: "" },
+                { id: "2", title: "Task 2", description: "" }
+            ]
+        },
+        {
+            title: "Doing",
+            tasks: [
+                { id: "3", title: "Task 3", description: "" }
+            ]
+        },
+        {
+            title: "Done",
+            tasks: []
+        }
     ])
     const [newTaskTitle, setNewTaskTitle] = useState("")
+    const [newTaskDescription, setNewTaskDescription] = useState("")
     function addTask() {
         if (!newTaskTitle.trim()) return
 
         const newTask = {
             id: Date.now().toString(),
             title: newTaskTitle,
-            description: ""
+            description: newTaskDescription
         }
 
         const newColumns = [...columns]
@@ -36,24 +37,25 @@ function Board() {
 
         setColumns(newColumns)
         setNewTaskTitle("")
+        setNewTaskDescription("")
     }
     function updateTaskDescription( taskId: string, columnTitle: string, newDescription: string ) {
-    const newColumns = columns.map((column) => {
-        if (column.title !== columnTitle) return column
+        const newColumns = columns.map((column) => {
+            if (column.title !== columnTitle) return column
 
-        return {
-            ...column,
-            tasks: column.tasks.map((task) => {
-                if (task.id === taskId) {
-                    return { ...task, description: newDescription }
-                } else {
-                    return task
-                }
-            })
-        }
-    })
+            return {
+                ...column,
+                tasks: column.tasks.map((task) => {
+                    if (task.id === taskId) {
+                        return { ...task, description: newDescription }
+                    } else {
+                        return task
+                    }
+                })
+            }
+        })
 
-    setColumns(newColumns)
+        setColumns(newColumns)
     }
     function deleteTask(taskId: string, columnTitle: string) {
         const newColumns = columns.map((column) => {
@@ -139,6 +141,11 @@ function Board() {
                 value={newTaskTitle}
                 onChange={(event) => setNewTaskTitle(event.target.value)}
                 placeholder="Enter task title"
+            />
+            <input
+                value={newTaskDescription}
+                onChange={(event) => setNewTaskDescription(event.target.value)}
+                placeholder="Enter description"
             />
             <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
         </div>
