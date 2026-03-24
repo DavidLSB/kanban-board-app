@@ -27,7 +27,8 @@ function Board() {
 
         const newTask = {
             id: Date.now().toString(),
-            title: newTaskTitle
+            title: newTaskTitle,
+            description: ""
         }
 
         const newColumns = [...columns]

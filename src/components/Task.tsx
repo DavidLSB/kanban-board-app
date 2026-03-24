@@ -3,6 +3,7 @@ import type { Task as TaskType } from "./Task"
 export type Task = {
   id: string
   title: string
+  description: string
 }
 
 type TaskProps = {
@@ -21,8 +22,8 @@ function Task({ task, onDelete, onMove, onMoveAdjacent, isFirstColumn, isLastCol
         marginTop: "10px",
         padding: "5px"
     }}>
-        {task.title}
-
+        <strong>{task.title}</strong>
+        <p>{task.description || "No description available."}</p>
         <button onClick={() => onDelete(task.id)}>
             Delete
         </button>
