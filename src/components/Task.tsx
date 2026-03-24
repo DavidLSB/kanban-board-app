@@ -9,6 +9,7 @@ export type Task = {
 type TaskProps = {
     task: TaskType
     onDelete: (taskId: string) => void
+    onUpdateTitle: (title: string) => void
     onUpdateDescription: (desc: string) => void
     onMove: (toColumn: string) => void
     onMoveAdjacent: (direction: "left" | "right") => void
@@ -16,7 +17,7 @@ type TaskProps = {
     isLastColumn: boolean
 }
 
-function Task({ task, onDelete, onUpdateDescription, onMove, onMoveAdjacent, isFirstColumn, isLastColumn }: TaskProps) {
+function Task({ task, onDelete, onUpdateTitle, onUpdateDescription, onMove, onMoveAdjacent, isFirstColumn, isLastColumn }: TaskProps) {
     return (
     <div style={{
         border: "1px solid black",
@@ -24,6 +25,11 @@ function Task({ task, onDelete, onUpdateDescription, onMove, onMoveAdjacent, isF
         padding: "5px"
     }}>
         <strong>{task.title}</strong>
+        
+        <input
+            value={task.title}
+            onChange={(event) => onUpdateTitle(event.target.value)}
+        />
         <p>{task.description || "No description available."}</p>
         <input
             value={task.description}
