@@ -37,6 +37,24 @@ function Board() {
         setColumns(newColumns)
         setNewTaskTitle("")
     }
+    function updateTaskDescription( taskId: string, columnTitle: string, newDescription: string ) {
+    const newColumns = columns.map((column) => {
+        if (column.title !== columnTitle) return column
+
+        return {
+            ...column,
+            tasks: column.tasks.map((task) => {
+                if (task.id === taskId) {
+                    return { ...task, description: newDescription }
+                } else {
+                    return task
+                }
+            })
+        }
+    })
+
+    setColumns(newColumns)
+    }
     function deleteTask(taskId: string, columnTitle: string) {
         const newColumns = columns.map((column) => {
             if (column.title !== columnTitle) return column
@@ -109,6 +127,7 @@ function Board() {
                         title={column.title} 
                         width={300}
                         onDeleteTask={deleteTask}
+                        onUpdateTaskDescription={updateTaskDescription}
                         onMoveTask={moveTaskToColumn}
                         onMoveTaskAdjacent={moveTaskAdjacent}
                         columnIndex={index}

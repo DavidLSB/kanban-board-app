@@ -6,13 +6,14 @@ type ColumnProps = {
     width: number
     tasks: TaskType[]
     onDeleteTask: (taskId: string, columnTitle: string) => void
+    onUpdateTaskDescription: (taskId: string, columnTitle: string, newDescription: string) => void
     onMoveTask: (taskId: string, fromColumn: string, toColumn: string) => void
     onMoveTaskAdjacent: (taskId: string, fromColumn: string, direction: "left" | "right") => void
     columnIndex: number
     totalColumns: number
 }
 
-function Column({ title, width, tasks, onDeleteTask, onMoveTask, onMoveTaskAdjacent, columnIndex, totalColumns }: ColumnProps) {
+function Column({ title, width, tasks, onDeleteTask, onUpdateTaskDescription, onMoveTask, onMoveTaskAdjacent, columnIndex, totalColumns }: ColumnProps) {
     return (
         <div style={{
             border: "1px solid gray",
@@ -26,6 +27,7 @@ function Column({ title, width, tasks, onDeleteTask, onMoveTask, onMoveTaskAdjac
                     key={task.id}
                     task={task}
                     onDelete={(taskId) => onDeleteTask(taskId, title)}
+                    onUpdateDescription={(desc) => onUpdateTaskDescription(task.id, title, desc)}
                     onMove={(toColumn) => onMoveTask(task.id, title, toColumn)}
                     onMoveAdjacent={(direction) => onMoveTaskAdjacent(task.id, title, direction)}
                     isFirstColumn={columnIndex === 0}
