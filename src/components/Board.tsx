@@ -3,7 +3,7 @@ import Column from "./Column"
 import type { Task } from "./Task"
 
 function Board() {
-    const [columns, setColumns] = useState<{ title: string, tasks: Task[] }[]>([{
+    const [columns, setColumns] = useState<{ id: string, title: string, tasks: Task[] }[]>([{
             title: "To Do",
             tasks: [
                 { id: "1", title: "Task 1", description: "" },
@@ -21,8 +21,20 @@ function Board() {
             tasks: []
         }
     ])
+    const [newColumnTitle, setNewColumnTitle] = useState("")
     const [newTaskTitle, setNewTaskTitle] = useState("")
     const [newTaskDescription, setNewTaskDescription] = useState("")
+    function addColumn() {
+        if (!newColumnTitle.trim()) return
+
+        const newColumn = {
+            title: newColumnTitle,
+            tasks: []
+        }
+
+        setColumns([...columns, newColumn])
+        setNewColumnTitle("")
+    }  
     function addTask() {
         if (!newTaskTitle.trim()) return
 
@@ -140,8 +152,8 @@ function Board() {
             }}>
                 {columns.map((column, index) => (
                     <Column 
+                        key={column.id} 
                         tasks={column.tasks} 
-                        key={column.title} 
                         title={column.title} 
                         width={300}
                         onDeleteTask={deleteTask}
@@ -165,6 +177,13 @@ function Board() {
                 placeholder="Enter description"
             />
             <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
+            
+            <input
+                value={newColumnTitle}
+                onChange={(e) => setNewColumnTitle(e.target.value)}
+                placeholder="New column"
+            />
+            <button onClick={addColumn}>Add Column</button>
         </div>
     )
 }
