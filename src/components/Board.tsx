@@ -24,6 +24,9 @@ function Board() {
     const [newColumnTitle, setNewColumnTitle] = useState("")
     const [newTaskTitle, setNewTaskTitle] = useState("")
     const [newTaskDescription, setNewTaskDescription] = useState("")
+    // ====================
+    // COLUMNS
+    // ====================
     function addColumn() {
         if (!newColumnTitle.trim()) return
 
@@ -35,6 +38,9 @@ function Board() {
         setColumns([...columns, newColumn])
         setNewColumnTitle("")
     }  
+    // ====================
+    // TASKS
+    // ====================
     function addTask() {
         if (!newTaskTitle.trim()) return
 
@@ -97,6 +103,9 @@ function Board() {
 
     setColumns(newColumns)
     }
+    // ====================
+    // TASKS MOVEMENT
+    // ====================
     function moveTaskToColumn(taskId: string, fromColumn: string, toColumn: string) {
         const taskToMove = columns
             .find(c => c.title === fromColumn)
@@ -166,24 +175,27 @@ function Board() {
                     />
                 ))}
             </div>
-            <input
-                value={newTaskTitle}
-                onChange={(event) => setNewTaskTitle(event.target.value)}
-                placeholder="Enter task title"
-            />
-            <input
-                value={newTaskDescription}
-                onChange={(event) => setNewTaskDescription(event.target.value)}
-                placeholder="Enter description"
-            />
-            <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
-            
-            <input
-                value={newColumnTitle}
-                onChange={(e) => setNewColumnTitle(e.target.value)}
-                placeholder="New column"
-            />
-            <button onClick={addColumn}>Add Column</button>
+            <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
+                <input
+                    value={newTaskTitle}
+                    onChange={(event) => setNewTaskTitle(event.target.value)}
+                    placeholder="Enter task title"
+                />
+                <input
+                    value={newTaskDescription}
+                    onChange={(event) => setNewTaskDescription(event.target.value)}
+                    placeholder="Enter description"
+                />
+                <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
+            </div>
+            <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
+                <input
+                    value={newColumnTitle}
+                    onChange={(e) => setNewColumnTitle(e.target.value)}
+                    placeholder="New column"
+                />
+                <button onClick={addColumn}>Add Column</button>
+            </div>
         </div>
     )
 }
