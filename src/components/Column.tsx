@@ -6,14 +6,17 @@ type ColumnProps = {
     title: string
     width: number
     tasks: TaskType[]
+    columnIndex: number
+    totalColumns: number
+    onUpdateColumnTitle: (oldTitle: string, newTitle: string) => void
+    // ====================
+    // Tasks prop drilling
+    // ====================
     onDeleteTask: (taskId: string, columnTitle: string) => void
     onUpdateTaskTitle: ( taskId: string, columnTitle: string, newTitle: string) => void
     onUpdateTaskDescription: (taskId: string, columnTitle: string, newDescription: string) => void
     onMoveTask: (taskId: string, fromColumn: string, toColumn: string) => void
     onMoveTaskAdjacent: (taskId: string, fromColumn: string, direction: "left" | "right") => void
-    columnIndex: number
-    totalColumns: number
-    onUpdateColumnTitle: (oldTitle: string, newTitle: string) => void
 }
 
 function Column({ title, width, tasks, onDeleteTask, onUpdateTaskTitle, onUpdateTaskDescription, onMoveTask, onMoveTaskAdjacent, columnIndex, totalColumns, onUpdateColumnTitle }: ColumnProps) {
