@@ -38,6 +38,20 @@ function Board() {
         setColumns([...columns, newColumn])
         setNewColumnTitle("")
     }  
+    function updateColumnTitle(oldTitle: string, newTitle: string) {
+        if (!newTitle.trim()) return
+
+        const newColumns = columns.map(column => {
+            if (column.title !== oldTitle) return column
+
+            return {
+                ...column,
+                title: newTitle
+            }
+        })
+
+        setColumns(newColumns)
+    }
     // ====================
     // TASKS
     // ====================
@@ -172,6 +186,7 @@ function Board() {
                         onMoveTaskAdjacent={moveTaskAdjacent}
                         columnIndex={index}
                         totalColumns={columns.length}
+                        onUpdateColumnTitle={updateColumnTitle}
                     />
                 ))}
             </div>
