@@ -22,13 +22,9 @@ type ColumnProps = {
 function Column({ title, width, tasks, onDeleteTask, onUpdateTaskTitle, onUpdateTaskDescription, onMoveTask, onMoveTaskAdjacent, columnIndex, totalColumns, onUpdateColumnTitle }: ColumnProps) {
     const [isEditing, setIsEditing] = useState(false)
     const [titleInput, setTitleInput] = useState(title)
-    return (
-        <div style={{
-            border: "1px solid gray",
-            width: `${width}px`,
-            padding: "10px"
-        }}>
-            {isEditing ? (
+    function renderTitle() {
+        if (isEditing) {
+            return (
                 <input
                     value={titleInput}
                     onChange={(e) => setTitleInput(e.target.value)}
@@ -44,11 +40,22 @@ function Column({ title, width, tasks, onDeleteTask, onUpdateTaskTitle, onUpdate
                     }}
                     autoFocus
                 />
-            ) : (
-                <h2 onClick={() => setIsEditing(true)}>
-                    {title}
-                </h2>
-            )}
+            )
+        }
+
+        return (
+            <h2 onClick={() => setIsEditing(true)}>
+                {title}
+            </h2>
+        )
+    }
+    return (
+        <div style={{
+            border: "1px solid gray",
+            width: `${width}px`,
+            padding: "10px"
+        }}>
+            {renderTitle()}
             {tasks.map((task) => (
                 <Task
                     key={task.id}

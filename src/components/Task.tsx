@@ -23,54 +23,68 @@ function Task({ task, onDelete, onUpdateTitle, onUpdateDescription, onMove, onMo
     const [isEditingDescription, setIsEditingDescription] = useState(false)
     const [titleInput, setTitleInput] = useState(task.title)
     const [descInput, setDescInput] = useState(task.description)
+    function renderTitle() {
+        if (isEditingTitle) {
+            return (
+                <input
+                    value={titleInput}
+                    onChange={(e) => setTitleInput(e.target.value)}
+                    onBlur={() => {
+                        onUpdateTitle(titleInput)
+                        setIsEditingTitle(false)
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            onUpdateTitle(titleInput)
+                            setIsEditingTitle(false)
+                        }
+                    }}
+                    autoFocus
+                />
+            )
+        }
+
+        return (
+            <strong onClick={() => setIsEditingTitle(true)}>
+                {task.title}
+            </strong>
+        )
+    }
+    function renderDescription() {
+        if (isEditingDescription) {
+            return (
+                <input
+                    value={descInput}
+                    onChange={(e) => setDescInput(e.target.value)}
+                    onBlur={() => {
+                        onUpdateDescription(descInput)
+                        setIsEditingDescription(false)
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            onUpdateDescription(descInput)
+                            setIsEditingDescription(false)
+                        }
+                    }}
+                    autoFocus
+                />
+            )
+        }
+
+        return (
+            <p onClick={() => setIsEditingDescription(true)}>
+                {task.description || "No description available."}
+            </p>
+        )
+    }
     return (
     <div style={{
         border: "1px solid black",
         marginTop: "10px",
         padding: "5px"
     }}>
-        {isEditingTitle ? (
-            <input
-                value={titleInput}
-                onChange={(e) => setTitleInput(e.target.value)}
-                onBlur={() => {
-                    onUpdateTitle(titleInput)
-                    setIsEditingTitle(false)
-                }}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                        onUpdateTitle(titleInput)
-                        setIsEditingTitle(false)
-                    }
-                }}
-                autoFocus
-            />
-        ) : (
-            <strong onClick={() => setIsEditingTitle(true)}>
-                {task.title}
-            </strong>
-        )}
-        {isEditingDescription ? (
-            <input
-                value={descInput}
-                onChange={(e) => setDescInput(e.target.value)}
-                onBlur={() => {
-                    onUpdateDescription(descInput)
-                    setIsEditingDescription(false)
-                }}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                        onUpdateDescription(descInput)
-                        setIsEditingDescription(false)
-                    }
-                }}
-                autoFocus
-            />
-        ) : (
-            <p onClick={() => setIsEditingDescription(true)}>
-                {task.description || "No description available."}
-            </p>
-        )}
+        {renderTitle()}
+        {renderDescription()}
         <button disabled={isFirstColumn} onClick={() => onMoveAdjacent("left")}>⬅</button>
         <button onClick={() => onDelete(task.id)}>
             Delete
