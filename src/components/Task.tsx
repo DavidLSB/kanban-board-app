@@ -1,3 +1,4 @@
+import { useState } from "react"
 import type { Task as TaskType } from "./Task"
 
 export type Task = {
@@ -18,28 +19,62 @@ type TaskProps = {
 }
 
 function Task({ task, onDelete, onUpdateTitle, onUpdateDescription, onMove, onMoveAdjacent, isFirstColumn, isLastColumn }: TaskProps) {
+    const [isEditingTitle, setIsEditingTitle] = useState(false)
+    const [isEditingDescription, setIsEditingDescription] = useState(false)
+    const [titleInput, setTitleInput] = useState(task.title)
+    const [descInput, setDescInput] = useState(task.description)
     return (
     <div style={{
         border: "1px solid black",
         marginTop: "10px",
         padding: "5px"
     }}>
-        <strong>{task.title}</strong>
-        
-        <input
-            value={task.title}
-            onChange={(event) => onUpdateTitle(event.target.value)}
-        />
-        <p>{task.description || "No description available."}</p>
-        <input
-            value={task.description}
-            onChange={(event) => onUpdateDescription(event.target.value)}
-            placeholder="Add description"
-        />
+        {isEditingTitle ? (
+            <input
+                value={titleInput}
+                onChange={(e) => setTitleInput(e.target.value)}
+                onBlur={() => {
+                    onUpdateTitle(titleInput)
+                    setIsEditingTitle(false)
+                }}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        onUpdateTitle(titleInput)
+                        setIsEditingTitle(false)
+                    }
+                }}
+                autoFocus
+            />
+        ) : (
+            <strong onClick={() => setIsEditingTitle(true)}>
+                {task.title}
+            </strong>
+        )}
+        {isEditingDescription ? (
+            <input
+                value={descInput}
+                onChange={(e) => setDescInput(e.target.value)}
+                onBlur={() => {
+                    onUpdateDescription(descInput)
+                    setIsEditingDescription(false)
+                }}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        onUpdateDescription(descInput)
+                        setIsEditingDescription(false)
+                    }
+                }}
+                autoFocus
+            />
+        ) : (
+            <p onClick={() => setIsEditingDescription(true)}>
+                {task.description || "No description available."}
+            </p>
+        )}
+        <button disabled={isFirstColumn} onClick={() => onMoveAdjacent("left")}>⬅</button>
         <button onClick={() => onDelete(task.id)}>
             Delete
         </button>
-        <button disabled={isFirstColumn} onClick={() => onMoveAdjacent("left")}>⬅</button>
         <button disabled={isLastColumn} onClick={() => onMoveAdjacent("right")}>➡</button>
     </div>
   )
