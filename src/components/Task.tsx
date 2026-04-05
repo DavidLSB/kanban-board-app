@@ -18,7 +18,16 @@ type TaskProps = {
     isLastColumn: boolean
 }
 
-function Task({ task, onDelete, onUpdateTitle, onUpdateDescription, onMove, onMoveAdjacent, isFirstColumn, isLastColumn }: TaskProps) {
+function Task({ 
+    task, 
+    onDelete, 
+    onUpdateTitle, 
+    onUpdateDescription, 
+    onMove, 
+    onMoveAdjacent, 
+    isFirstColumn, 
+    isLastColumn 
+}: TaskProps) {
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [isEditingDescription, setIsEditingDescription] = useState(false)
     const [titleInput, setTitleInput] = useState(task.title)

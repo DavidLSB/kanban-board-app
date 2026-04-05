@@ -52,6 +52,10 @@ function Board() {
 
         setColumns(newColumns)
     }
+    function deleteColumn(index: number) {
+        const newColumns = columns.filter((_, i) => i !== index)
+        setColumns(newColumns)
+    }
     // ====================
     // TASKS
     // ====================
@@ -163,6 +167,27 @@ function Board() {
 
         moveTaskToColumn(taskId, fromColumn, targetColumn)
     }
+    // ====================
+    // COLUMNS MOVEMENT
+    // ====================
+    function moveColumnAdjacent(index: number, direction: "left" | "right") {
+        const newColumns = [...columns]
+
+        let targetIndex: number;
+        if (direction === "left") {
+            targetIndex = index - 1;
+        } else {
+            targetIndex = index + 1;
+        }
+
+        if (targetIndex < 0 || targetIndex >= columns.length) return
+
+        const temp = newColumns[index]
+        newColumns[index] = newColumns[targetIndex]
+        newColumns[targetIndex] = temp
+
+        setColumns(newColumns)
+    }
     return (
         <div>
             <div 
@@ -187,6 +212,8 @@ function Board() {
                         columnIndex={index}
                         totalColumns={columns.length}
                         onUpdateColumnTitle={updateColumnTitle}
+                        onMoveColumnAdjacent={moveColumnAdjacent}
+                        onDeleteColumn={deleteColumn}
                     />
                 ))}
             </div>
