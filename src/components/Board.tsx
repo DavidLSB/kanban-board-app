@@ -1,6 +1,8 @@
 import { useState } from "react"
+import { DndContext } from "@dnd-kit/core"
 import Column from "./Column"
 import type { Task } from "./Task"
+
 
 function Board() {
     const [columns, setColumns] = useState<{ id: string, title: string, tasks: Task[] }[]>([{
@@ -188,57 +190,67 @@ function Board() {
 
         setColumns(newColumns)
     }
+    // ====================
+    // DRAG & DROP
+    // ====================
+    function handleDragEnd(event: any) {
+        const { active, over } = event
+
+        console.log("drag end:", active, over)
+    }
     return (
-        <div>
-            <div 
-                style={{
-                display: "flex", 
-                gap: "20px", 
-                border: "2px solid gray",
-                padding: "10px",
-                width: "1000px"
-            }}>
-                {columns.map((column, index) => (
-                    <Column 
-                        key={column.id} 
-                        tasks={column.tasks} 
-                        title={column.title} 
-                        width={300}
-                        onDeleteTask={deleteTask}
-                        onUpdateTaskTitle={updateTaskTitle}
-                        onUpdateTaskDescription={updateTaskDescription}
-                        onMoveTask={moveTaskToColumn}
-                        onMoveTaskAdjacent={moveTaskAdjacent}
-                        columnIndex={index}
-                        totalColumns={columns.length}
-                        onUpdateColumnTitle={updateColumnTitle}
-                        onMoveColumnAdjacent={moveColumnAdjacent}
-                        onDeleteColumn={deleteColumn}
+        <DndContext onDragEnd={handleDragEnd}>
+            <div>
+                <div 
+                    style={{
+                    display: "flex", 
+                    gap: "20px", 
+                    border: "2px solid gray",
+                    padding: "10px",
+                    width: "1000px"
+                }}>
+                    {columns.map((column, index) => (
+                        <Column 
+                            key={column.id} 
+                            tasks={column.tasks} 
+                            title={column.title} 
+                            width={300}
+                            onDeleteTask={deleteTask}
+                            onUpdateTaskTitle={updateTaskTitle}
+                            onUpdateTaskDescription={updateTaskDescription}
+                            onMoveTask={moveTaskToColumn}
+                            onMoveTaskAdjacent={moveTaskAdjacent}
+                            columnIndex={index}
+                            totalColumns={columns.length}
+                            onUpdateColumnTitle={updateColumnTitle}
+                            onMoveColumnAdjacent={moveColumnAdjacent}
+                            onDeleteColumn={deleteColumn}
+                        />
+                    ))}
+                </div>
+                <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
+                    <input
+                        value={newTaskTitle}
+                        onChange={(event) => setNewTaskTitle(event.target.value)}
+                        placeholder="Enter task title"
                     />
-                ))}
+                    <input
+                        value={newTaskDescription}
+                        onChange={(event) => setNewTaskDescription(event.target.value)}
+                        placeholder="Enter description"
+                    />
+                    <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
+                </div>
+                <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
+                    <input
+                        value={newColumnTitle}
+                        onChange={(e) => setNewColumnTitle(e.target.value)}
+                        placeholder="New column"
+                    />
+                    <button onClick={addColumn}>Add Column</button>
+                </div>
             </div>
-            <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
-                <input
-                    value={newTaskTitle}
-                    onChange={(event) => setNewTaskTitle(event.target.value)}
-                    placeholder="Enter task title"
-                />
-                <input
-                    value={newTaskDescription}
-                    onChange={(event) => setNewTaskDescription(event.target.value)}
-                    placeholder="Enter description"
-                />
-                <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
-            </div>
-            <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
-                <input
-                    value={newColumnTitle}
-                    onChange={(e) => setNewColumnTitle(e.target.value)}
-                    placeholder="New column"
-                />
-                <button onClick={addColumn}>Add Column</button>
-            </div>
-        </div>
+        </DndContext>
     )
 }
 
