@@ -6,19 +6,22 @@ import type { Task } from "./Task"
 
 function Board() {
     const [columns, setColumns] = useState<{ id: string, title: string, tasks: Task[] }[]>([{
+            id : crypto.randomUUID(),
             title: "To Do",
             tasks: [
-                { id: "1", title: "Task 1", description: "" },
-                { id: "2", title: "Task 2", description: "" }
+                { id: crypto.randomUUID(), title: "Task 1", description: "" },
+                { id: crypto.randomUUID(), title: "Task 2", description: "" }
             ]
         },
         {
+            id : crypto.randomUUID(),
             title: "Doing",
             tasks: [
-                { id: "3", title: "Task 3", description: "" }
+                { id: crypto.randomUUID(), title: "Task 3", description: "" }
             ]
         },
         {
+            id : crypto.randomUUID(),
             title: "Done",
             tasks: []
         }
@@ -33,6 +36,7 @@ function Board() {
         if (!newColumnTitle.trim()) return
 
         const newColumn = {
+            id : crypto.randomUUID(),
             title: newColumnTitle,
             tasks: []
         }
@@ -65,7 +69,7 @@ function Board() {
         if (!newTaskTitle.trim()) return
 
         const newTask = {
-            id: Date.now().toString(),
+            id : crypto.randomUUID(),
             title: newTaskTitle,
             description: newTaskDescription
         }
