@@ -1,5 +1,6 @@
 import { useState } from "react"
 import type { Task as TaskType } from "./Task"
+import { useDraggable } from "@dnd-kit/core"
 
 export type Task = {
   id: string
@@ -32,6 +33,7 @@ function Task({
     const [isEditingDescription, setIsEditingDescription] = useState(false)
     const [titleInput, setTitleInput] = useState(task.title)
     const [descInput, setDescInput] = useState(task.description)
+    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({id: task.id})
     function renderTitle() {
         if (isEditingTitle) {
             return (
@@ -85,22 +87,40 @@ function Task({
                 {task.description || "No description available."}
             </p>
         )
-    }
+    } 
     return (
-    <div style={{
-        border: "1px solid black",
-        marginTop: "10px",
-        padding: "5px"
-    }}>
-        {renderTitle()}
-        {renderDescription()}
-        <button disabled={isFirstColumn} onClick={() => onMoveAdjacent("left")}>⬅</button>
-        <button onClick={() => onDelete(task.id)}>
-            Delete
-        </button>
-        <button disabled={isLastColumn} onClick={() => onMoveAdjacent("right")}>➡</button>
-    </div>
-  )
+        <div
+            ref={setNodeRef}
+            style={{
+                border: "1px solid black",
+                marginTop: "10px",
+                padding: "5px",
+                opacity: isDragging ? 0.4 : 1,
+                transform: isDragging ? "scale(1.05)" : "scale(1)",
+                boxShadow: isDragging ? "0px 5px 15px rgba(0,0,0,0.2)" : "none",
+                zIndex: isDragging ? 1000 : "auto"
+        }}>
+            <div
+                {...listeners}
+                {...attributes}
+                style={{
+                    cursor: isDragging ? "grabbing" : "grab",
+                    background: "#eee",
+                    padding: "2px",
+                    marginBottom: "5px"
+                }}
+            >
+                ⠿ Drag
+            </div>
+            {renderTitle()}
+            {renderDescription()}
+            <button disabled={isFirstColumn} onClick={() => onMoveAdjacent("left")}>⬅</button>
+            <button onClick={() => onDelete(task.id)}>
+                Delete
+            </button>
+            <button disabled={isLastColumn} onClick={() => onMoveAdjacent("right")}>➡</button>
+        </div>
+    )
 }
 
 export default Task
