@@ -4,8 +4,8 @@ Simple task manager built with React + TypeScript.
 
 ## Main Progress
 
-[x] Basic CRUD (columns and tasks)
-[ ] Drag & drop
+[ ] Basic CRUD (columns and tasks)
+[x] Drag & drop
 [ ] Pomodoro timer "focus mode"
 [ ] Backend API (Node.js + Express)
 [ ] Database (PostgreSQL)
