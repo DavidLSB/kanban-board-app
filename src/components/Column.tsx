@@ -1,8 +1,10 @@
 import { useState } from "react"
 import Task from "./Task"
 import type { Task as TaskType } from "./Task"
+import { useDroppable } from "@dnd-kit/core"
 
 type ColumnProps = {
+    id: string
     title: string
     width: number
     tasks: TaskType[]
@@ -22,6 +24,7 @@ type ColumnProps = {
 }
 
 function Column({
+    id,
     title,
     width,
     tasks,
@@ -41,6 +44,7 @@ function Column({
 }: ColumnProps) {
     const [isEditing, setIsEditing] = useState(false)
     const [titleInput, setTitleInput] = useState(title)
+    const { setNodeRef } = useDroppable({id: id})
     function renderTitle() {
         if (isEditing) {
             return (
@@ -69,10 +73,12 @@ function Column({
         )
     }
     return (
-        <div style={{
-            border: "1px solid gray",
-            width: `${width}px`,
-            padding: "10px"
+        <div 
+            ref={setNodeRef}
+            style={{
+                border: "1px solid gray",
+                width: `${width}px`,
+                padding: "10px" 
         }}>
             {renderTitle()}
             {tasks.map((task) => (

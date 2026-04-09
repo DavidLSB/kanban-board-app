@@ -132,20 +132,20 @@ function Board() {
     // ====================
     function moveTaskToColumn(taskId: string, fromColumn: string, toColumn: string) {
         const taskToMove = columns
-            .find(c => c.title === fromColumn)
+            .find(c => c.id === fromColumn)
             ?.tasks.find(t => t.id === taskId)
 
         if (!taskToMove) return
 
         const newColumns = columns.map(column => {
-            if (column.title === fromColumn) {
+            if (column.id === fromColumn) {
             return {
                 ...column,
                 tasks: column.tasks.filter(t => t.id !== taskId)
             }
             }
 
-            if (column.title === toColumn) {
+            if (column.id === toColumn) {
             return {
                 ...column,
                 tasks: [...column.tasks, taskToMove]
@@ -200,7 +200,25 @@ function Board() {
     function handleDragEnd(event: any) {
         const { active, over } = event
 
-        console.log("drag end:", active, over)
+        if (!over) return
+
+        const taskId = active.id
+        const targetColumnId = over.id
+
+        let sourceColumnId: string | null = null
+
+        for (const column of columns) {
+            if (column.tasks.some(task => task.id === taskId)) {
+                sourceColumnId = column.id
+                break
+            }
+        }
+
+        if (!sourceColumnId) return
+
+        if (sourceColumnId === targetColumnId) return
+
+        moveTaskToColumn(taskId, sourceColumnId, targetColumnId)
     }
     return (
         <DndContext onDragEnd={handleDragEnd}>
@@ -216,6 +234,7 @@ function Board() {
                     {columns.map((column, index) => (
                         <Column 
                             key={column.id} 
+                            id={column.id}
                             tasks={column.tasks} 
                             title={column.title} 
                             width={300}
