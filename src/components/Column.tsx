@@ -85,6 +85,7 @@ function Column({
                 <Task
                     key={task.id}
                     task={task}
+                    isOverlay={false}
                     onDelete={(taskId) => onDeleteTask(taskId, title)}
                     onUpdateTitle={(newTitle) => onUpdateTaskTitle(task.id, title, newTitle)}
                     onUpdateDescription={(desc) => onUpdateTaskDescription(task.id, title, desc)}

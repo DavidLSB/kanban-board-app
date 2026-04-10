@@ -1,11 +1,13 @@
 import { useState } from "react"
 import { DndContext } from "@dnd-kit/core"
+import { DragOverlay } from "@dnd-kit/core"
 import Column from "./Column"
-import type { Task } from "./Task"
+import type { Task as TaskType} from "./Task"
+import Task from "./Task"
 
 
 function Board() {
-    const [columns, setColumns] = useState<{ id: string, title: string, tasks: Task[] }[]>([{
+    const [columns, setColumns] = useState<{ id: string, title: string, tasks: TaskType[] }[]>([{
             id : crypto.randomUUID(),
             title: "To Do",
             tasks: [
@@ -29,6 +31,7 @@ function Board() {
     const [newColumnTitle, setNewColumnTitle] = useState("")
     const [newTaskTitle, setNewTaskTitle] = useState("")
     const [newTaskDescription, setNewTaskDescription] = useState("")
+    const [activeTask, setActiveTask] = useState<TaskType | null>(null)
     // ====================
     // COLUMNS
     // ====================
@@ -197,9 +200,14 @@ function Board() {
     // ====================
     // DRAG & DROP
     // ====================
+    function handleDragStart(event: any) {
+        const task = event.active.data.current.task
+        setActiveTask(task)
+    }
     function handleDragEnd(event: any) {
         const { active, over } = event
-
+        setActiveTask(null)
+        
         if (!over) return
 
         const taskId = active.id
@@ -214,14 +222,24 @@ function Board() {
             }
         }
 
-        if (!sourceColumnId) return
-
-        if (sourceColumnId === targetColumnId) return
+        if (!sourceColumnId || sourceColumnId === targetColumnId) return
 
         moveTaskToColumn(taskId, sourceColumnId, targetColumnId)
     }
+    function renderOverlayTask() {
+        if (!activeTask) return null
+        return (
+            <Task
+                task={activeTask}
+                isOverlay={true}
+            />
+        )
+    }
     return (
-        <DndContext onDragEnd={handleDragEnd}>
+        <DndContext 
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+        >
             <div>
                 <div 
                     style={{
@@ -273,6 +291,9 @@ function Board() {
                     <button onClick={addColumn}>Add Column</button>
                 </div>
             </div>
+            <DragOverlay>
+                {activeTask ? renderOverlayTask() : null}
+            </DragOverlay>
         </DndContext>
     )
 }
