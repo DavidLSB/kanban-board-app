@@ -44,7 +44,7 @@ function Column({
 }: ColumnProps) {
     const [isEditing, setIsEditing] = useState(false)
     const [titleInput, setTitleInput] = useState(title)
-    const { setNodeRef } = useDroppable({id: id})
+    const { setNodeRef, isOver } = useDroppable({id: id})
     function renderTitle() {
         if (isEditing) {
             return (
@@ -76,9 +76,11 @@ function Column({
         <div 
             ref={setNodeRef}
             style={{
-                border: "1px solid gray",
                 width: `${width}px`,
-                padding: "10px" 
+                padding: "10px",
+
+                border: isOver ? "2px solid blue" : "1px solid gray",
+                backgroundColor: isOver ? "#f0f8ff" : "white"
         }}>
             {renderTitle()}
             {tasks.map((task) => (
