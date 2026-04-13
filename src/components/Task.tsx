@@ -1,6 +1,6 @@
 import { useState } from "react"
 import type { Task as TaskType } from "./Task"
-import { useDraggable } from "@dnd-kit/core"
+import { useDraggable, useDroppable } from "@dnd-kit/core"
 
 export type Task = {
   id: string
@@ -10,6 +10,7 @@ export type Task = {
 
 type TaskProps = {
     task: TaskType
+    columnId?: string
     isOverlay?: boolean
     onDelete?: (taskId: string) => void
     onUpdateTitle?: (title: string) => void
@@ -22,6 +23,7 @@ type TaskProps = {
 
 function Task({ 
     task,
+    columnId,
     isOverlay, 
     onDelete, 
     onUpdateTitle, 
@@ -38,7 +40,14 @@ function Task({
     const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
         id: task.id,
         data: {
-            task: task
+            task: task,
+            columnId: columnId
+        }
+    })
+    const { setNodeRef: setDropRef } = useDroppable({
+        id: task.id,
+        data: {
+            columnId: columnId
         }
     })
     function renderTitle() {
@@ -129,7 +138,10 @@ function Task({
     }
     return (
         <div
-            ref={setNodeRef}
+            ref={(node) => {
+                setNodeRef(node)
+                setDropRef(node)
+            }}
             style={{
                 border: "1px solid black",
                 marginTop: "10px",

@@ -3,6 +3,12 @@ import Task from "./Task"
 import type { Task as TaskType } from "./Task"
 import { useDroppable } from "@dnd-kit/core"
 
+export type ColumnType = {
+    id: string
+    title: string
+    tasks: TaskType[]
+}
+
 type ColumnProps = {
     id: string
     title: string
@@ -19,7 +25,7 @@ type ColumnProps = {
     onDeleteTask: (taskId: string, columnTitle: string) => void
     onUpdateTaskTitle: ( taskId: string, columnTitle: string, newTitle: string) => void
     onUpdateTaskDescription: (taskId: string, columnTitle: string, newDescription: string) => void
-    onMoveTask: (taskId: string, fromColumn: string, toColumn: string) => void
+    onMoveTask: (taskId: string, fromColumn: string, toColumn: string, columns: ColumnType[]) => void
     onMoveTaskAdjacent: (taskId: string, fromColumn: string, direction: "left" | "right") => void
 }
 
@@ -87,6 +93,7 @@ function Column({
                 <Task
                     key={task.id}
                     task={task}
+                    columnId={id}
                     isOverlay={false}
                     onDelete={(taskId) => onDeleteTask(taskId, title)}
                     onUpdateTitle={(newTitle) => onUpdateTaskTitle(task.id, title, newTitle)}

@@ -2,12 +2,13 @@ import { useState } from "react"
 import { DndContext } from "@dnd-kit/core"
 import { DragOverlay } from "@dnd-kit/core"
 import Column from "./Column"
+import type { ColumnType } from "./Column"
 import type { Task as TaskType} from "./Task"
 import Task from "./Task"
 
 
 function Board() {
-    const [columns, setColumns] = useState<{ id: string, title: string, tasks: TaskType[] }[]>([{
+    const [columns, setColumns] = useState<ColumnType[]>([{
             id : crypto.randomUUID(),
             title: "To Do",
             tasks: [
@@ -133,12 +134,16 @@ function Board() {
     // ====================
     // TASKS MOVEMENT
     // ====================
-    function moveTaskToColumn(taskId: string, fromColumn: string, toColumn: string) {
+    function moveTaskToColumn(
+        taskId: string, 
+        fromColumn: string, 
+        toColumn: string, 
+        columns: ColumnType[]): ColumnType[] {
         const taskToMove = columns
             .find(c => c.id === fromColumn)
             ?.tasks.find(t => t.id === taskId)
 
-        if (!taskToMove) return
+        if (!taskToMove || toColumn === fromColumn) return columns
 
         const newColumns = columns.map(column => {
             if (column.id === fromColumn) {
@@ -159,6 +164,7 @@ function Board() {
         })
 
         setColumns(newColumns)
+        return newColumns
     }
     function moveTaskAdjacent(taskId: string, fromColumn: string, direction: "left" | "right") {
         const index = columns.findIndex(c => c.title === fromColumn)
@@ -174,7 +180,7 @@ function Board() {
 
         const targetColumn = columns[targetIndex].title
 
-        moveTaskToColumn(taskId, fromColumn, targetColumn)
+        moveTaskToColumn(taskId, fromColumn, targetColumn, columns)
     }
     // ====================
     // COLUMNS MOVEMENT
@@ -200,6 +206,22 @@ function Board() {
     // ====================
     // DRAG & DROP
     // ====================
+    function reorderTask(taskId: string, targetTaskId: string, columns: ColumnType[]) {
+        const newColumns = columns.map(column => {
+            const taskIndex = column.tasks.findIndex(t => t.id === taskId)
+            const targetIndex = column.tasks.findIndex(t => t.id === targetTaskId)
+            if (taskIndex === -1 || targetIndex === -1) return column
+            const newTasks = [...column.tasks]
+            const [movedTask] = newTasks.splice(taskIndex, 1)
+            newTasks.splice(targetIndex, 0, movedTask)
+
+            return {
+                ...column,
+                tasks: newTasks
+            }
+        })
+        setColumns(newColumns)
+    }
     function handleDragStart(event: any) {
         const task = event.active.data.current.task
         setActiveTask(task)
@@ -211,20 +233,22 @@ function Board() {
         if (!over) return
 
         const taskId = active.id
-        const targetColumnId = over.id
+        let targetColumnId: string = over.id
+        let sourceColumnId: string = active.data.current.columnId
 
-        let sourceColumnId: string | null = null
+        if (!sourceColumnId) return
 
-        for (const column of columns) {
-            if (column.tasks.some(task => task.id === taskId)) {
-                sourceColumnId = column.id
-                break
-            }
+        const isTaskDrop = !!over.data.current?.columnId
+        if (isTaskDrop) {
+            targetColumnId = over.data.current.columnId
         }
 
-        if (!sourceColumnId || sourceColumnId === targetColumnId) return
 
-        moveTaskToColumn(taskId, sourceColumnId, targetColumnId)
+        let newColumns: ColumnType[] = moveTaskToColumn(taskId, sourceColumnId, targetColumnId,columns)
+        if (isTaskDrop) {
+            reorderTask(active.id, over.id, newColumns)
+            return
+        }
     }
     function renderOverlayTask() {
         if (!activeTask) return null
