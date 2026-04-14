@@ -33,6 +33,10 @@ function Board() {
     const [newTaskTitle, setNewTaskTitle] = useState("")
     const [newTaskDescription, setNewTaskDescription] = useState("")
     const [activeTask, setActiveTask] = useState<TaskType | null>(null)
+    const [preview, setPreview] = useState<{
+        taskId: string
+        position: "above" | "below"
+    } | null>(null)
     // ====================
     // COLUMNS
     // ====================
@@ -182,6 +186,15 @@ function Board() {
 
         moveTaskToColumn(taskId, fromColumn, targetColumn, columns)
     }
+    function handleMoveTask(taskId: string, fromColumn: string, toColumn: string) {
+        const newColumns = moveTaskToColumn(
+            taskId,
+            fromColumn,
+            toColumn,
+            columns
+        )
+        setColumns(newColumns)
+    }
     // ====================
     // COLUMNS MOVEMENT
     // ====================
@@ -243,12 +256,34 @@ function Board() {
             targetColumnId = over.data.current.columnId
         }
 
-
         let newColumns: ColumnType[] = moveTaskToColumn(taskId, sourceColumnId, targetColumnId,columns)
+        setPreview(null)
         if (isTaskDrop) {
             reorderTask(active.id, over.id, newColumns)
             return
         }
+    }
+    function handleDragOver(event: any) {
+        const { over } = event
+
+        if (!over || !over.data.current?.columnId) {
+            setPreview(null)
+            return
+        }
+
+        const targetTaskId = over.id
+
+        const rect = over.rect
+        const middle = rect.top + rect.height / 2
+
+        const mouseY = event.delta.y + rect.top 
+
+        const position = mouseY < middle ? "above" : "below"
+
+        setPreview({
+            taskId: targetTaskId,
+            position
+        })
     }
     function renderOverlayTask() {
         if (!activeTask) return null
@@ -261,8 +296,10 @@ function Board() {
     }
     return (
         <DndContext 
+            onDragOver={handleDragOver}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            onDragCancel={() => setPreview(null)}
         >
             <div>
                 <div 
@@ -283,7 +320,8 @@ function Board() {
                             onDeleteTask={deleteTask}
                             onUpdateTaskTitle={updateTaskTitle}
                             onUpdateTaskDescription={updateTaskDescription}
-                            onMoveTask={moveTaskToColumn}
+                            taskPreview={preview}
+                            onMoveTask={handleMoveTask}
                             onMoveTaskAdjacent={moveTaskAdjacent}
                             columnIndex={index}
                             totalColumns={columns.length}

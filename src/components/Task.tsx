@@ -10,6 +10,10 @@ export type Task = {
 
 type TaskProps = {
     task: TaskType
+    preview?: {
+        taskId: string
+        position: "above" | "below"
+    } | null
     columnId?: string
     isOverlay?: boolean
     onDelete?: (taskId: string) => void
@@ -23,6 +27,7 @@ type TaskProps = {
 
 function Task({ 
     task,
+    preview,
     columnId,
     isOverlay, 
     onDelete, 
@@ -151,6 +156,13 @@ function Task({
                 boxShadow: isDragging ? "0px 5px 15px rgba(0,0,0,0.2)" : "none",
                 zIndex: isDragging ? 1000 : "auto"
         }}>
+            {preview?.taskId === task.id && preview.position === "above" && (
+                <div style={{
+                    height: "4px",
+                    background: "blue",
+                    marginBottom: "4px"
+                }} />
+            )}
             <div
                 {...listeners}
                 {...attributes}
@@ -170,6 +182,13 @@ function Task({
                 Delete
             </button>
             <button disabled={isLastColumn} onClick={() => onMoveAdjacent?.("right")}>➡</button>
+            {preview?.taskId === task.id && preview.position === "below" && (
+                <div style={{
+                    height: "4px",
+                    background: "blue",
+                    marginBottom: "4px"
+                }} />
+            )}
         </div>
     )
 }

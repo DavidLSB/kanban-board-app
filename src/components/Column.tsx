@@ -22,10 +22,14 @@ type ColumnProps = {
     // ====================
     // Tasks prop drilling
     // ====================
+    taskPreview?: {
+        taskId: string
+        position: "above" | "below"
+    } | null
     onDeleteTask: (taskId: string, columnTitle: string) => void
     onUpdateTaskTitle: ( taskId: string, columnTitle: string, newTitle: string) => void
     onUpdateTaskDescription: (taskId: string, columnTitle: string, newDescription: string) => void
-    onMoveTask: (taskId: string, fromColumn: string, toColumn: string, columns: ColumnType[]) => void
+    onMoveTask: (taskId: string, fromColumn: string, toColumn: string) => void
     onMoveTaskAdjacent: (taskId: string, fromColumn: string, direction: "left" | "right") => void
 }
 
@@ -42,6 +46,7 @@ function Column({
     // ====================
     // Tasks prop drilling
     // ====================
+    taskPreview,
     onDeleteTask, 
     onUpdateTaskTitle, 
     onUpdateTaskDescription, 
@@ -93,6 +98,7 @@ function Column({
                 <Task
                     key={task.id}
                     task={task}
+                    preview={taskPreview}
                     columnId={id}
                     isOverlay={false}
                     onDelete={(taskId) => onDeleteTask(taskId, title)}
