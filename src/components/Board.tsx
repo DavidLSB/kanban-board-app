@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { DndContext } from "@dnd-kit/core"
 import { DragOverlay } from "@dnd-kit/core"
+import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import Column from "./Column"
 import type { ColumnType } from "./Column"
 import type { Task as TaskType} from "./Task"
@@ -245,22 +246,34 @@ function Board() {
         
         if (!over) return
 
-        const taskId = active.id
-        let targetColumnId: string = over.id
-        let sourceColumnId: string = active.data.current.columnId
+        const activeType = active.data.current?.type
+        const overType = over.data.current?.type
 
-        if (!sourceColumnId) return
+        if (activeType === "column" && overType === "column") {
+            const oldIndex = columns.findIndex(c => c.id === active.id)
+            const newIndex = columns.findIndex(c => c.id === over.id)
 
-        const isTaskDrop = !!over.data.current?.columnId
-        if (isTaskDrop) {
-            targetColumnId = over.data.current.columnId
-        }
+            if (oldIndex !== newIndex) {
+                setColumns(arrayMove(columns, oldIndex, newIndex))
+            }
+        } else {
+            const taskId = active.id
+            let targetColumnId: string = over.id
+            let sourceColumnId: string = active.data.current.columnId
 
-        let newColumns: ColumnType[] = moveTaskToColumn(taskId, sourceColumnId, targetColumnId,columns)
-        setPreview(null)
-        if (isTaskDrop) {
-            reorderTask(active.id, over.id, newColumns)
-            return
+            if (!sourceColumnId) return
+
+            const isTaskDrop = !!over.data.current?.columnId
+            if (isTaskDrop) {
+                targetColumnId = over.data.current.columnId
+            }
+
+            let newColumns: ColumnType[] = moveTaskToColumn(taskId, sourceColumnId, targetColumnId,columns)
+            setPreview(null)
+            if (isTaskDrop) {
+                reorderTask(active.id, over.id, newColumns)
+                return
+            }
         }
     }
     function handleDragOver(event: any) {
@@ -310,26 +323,28 @@ function Board() {
                     padding: "10px",
                     width: "1000px"
                 }}>
-                    {columns.map((column, index) => (
-                        <Column 
-                            key={column.id} 
-                            id={column.id}
-                            tasks={column.tasks} 
-                            title={column.title} 
-                            width={300}
-                            onDeleteTask={deleteTask}
-                            onUpdateTaskTitle={updateTaskTitle}
-                            onUpdateTaskDescription={updateTaskDescription}
-                            taskPreview={preview}
-                            onMoveTask={handleMoveTask}
-                            onMoveTaskAdjacent={moveTaskAdjacent}
-                            columnIndex={index}
-                            totalColumns={columns.length}
-                            onUpdateColumnTitle={updateColumnTitle}
-                            onMoveColumnAdjacent={moveColumnAdjacent}
-                            onDeleteColumn={deleteColumn}
-                        />
-                    ))}
+                    <SortableContext items={columns.map(col => col.id)} strategy={horizontalListSortingStrategy}>    
+                        {columns.map((column, index) => (
+                            <Column 
+                                key={column.id} 
+                                id={column.id}
+                                tasks={column.tasks} 
+                                title={column.title} 
+                                width={300}
+                                onDeleteTask={deleteTask}
+                                onUpdateTaskTitle={updateTaskTitle}
+                                onUpdateTaskDescription={updateTaskDescription}
+                                taskPreview={preview}
+                                onMoveTask={handleMoveTask}
+                                onMoveTaskAdjacent={moveTaskAdjacent}
+                                columnIndex={index}
+                                totalColumns={columns.length}
+                                onUpdateColumnTitle={updateColumnTitle}
+                                onMoveColumnAdjacent={moveColumnAdjacent}
+                                onDeleteColumn={deleteColumn}
+                            />
+                        ))}
+                    </SortableContext>
                 </div>
                 <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
                     <input

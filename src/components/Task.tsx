@@ -45,6 +45,7 @@ function Task({
     const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
         id: task.id,
         data: {
+            type: "task",
             task: task,
             columnId: columnId
         }
@@ -52,6 +53,7 @@ function Task({
     const { setNodeRef: setDropRef } = useDroppable({
         id: task.id,
         data: {
+            type: "task",
             columnId: columnId
         }
     })

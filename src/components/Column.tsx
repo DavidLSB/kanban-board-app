@@ -2,6 +2,7 @@ import { useState } from "react"
 import Task from "./Task"
 import type { Task as TaskType } from "./Task"
 import { useDroppable } from "@dnd-kit/core"
+import {useSortable } from '@dnd-kit/sortable'
 
 export type ColumnType = {
     id: string
@@ -56,6 +57,21 @@ function Column({
     const [isEditing, setIsEditing] = useState(false)
     const [titleInput, setTitleInput] = useState(title)
     const { setNodeRef, isOver } = useDroppable({id: id})
+    const {
+    attributes,
+    listeners,
+    setNodeRef: setColumnNodeRef,
+    isDragging
+    } = useSortable({
+        id: id,
+        data: {
+            type: "column"
+        }
+    })
+    const combinedRef = (node: HTMLElement | null) => {
+        setColumnNodeRef(node)
+        setNodeRef(node)
+    }
     function renderTitle() {
         if (isEditing) {
             return (
@@ -85,7 +101,7 @@ function Column({
     }
     return (
         <div 
-            ref={setNodeRef}
+            ref = {combinedRef}
             style={{
                 width: `${width}px`,
                 padding: "10px",
@@ -93,6 +109,17 @@ function Column({
                 border: isOver ? "2px solid blue" : "1px solid gray",
                 backgroundColor: isOver ? "#f0f8ff" : "white"
         }}>
+            <div 
+                {...listeners}
+                {...attributes}
+                style={{
+                    cursor: isDragging ? "grabbing" : "grab",
+                    background: "#eee",
+                    padding: "2px",
+                    marginBottom: "5px"
+                }}
+            >⠿ Drag
+            </div>
             {renderTitle()}
             {tasks.map((task) => (
                 <Task
