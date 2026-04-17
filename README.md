@@ -32,7 +32,7 @@ Kanban-style task management app built with React, TypeScript and Vite.
 ## ▶️ How to run locally
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/DavidLSB/kanban-task-manager.git
 cd <project-folder>
 npm install
 npm run dev
