@@ -18,8 +18,8 @@ Kanban-style task management app built with React, TypeScript and Vite.
 
 * Built with **React + TypeScript**
 * Uses **dnd-kit** for complex drag and drop interactions
-* Optimized drag logic using metadata (`columnId`, `type`) to avoid unnecessary updates
-* Array-based state updates for predictable behavior
+* Optimized drag logic using metadata (`columnId`, `type`) to reduce unnecessary computations
+* Array-based state updates for clarity and ease of reasoning
 * Separation of concerns between Board, Column and Task components
 
 ## 📦 Tech Stack
