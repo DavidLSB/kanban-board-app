@@ -1,6 +1,6 @@
-# Kanban Task Manager
+# Kanban Board App
 
-Kanban-style task management app built with React, TypeScript and Vite.
+Kanban-style task management app built with React, TypeScript and Vite, focused on interactive drag-and-drop functionality.
 
 ## 🚀 Features
 
@@ -16,7 +16,6 @@ Kanban-style task management app built with React, TypeScript and Vite.
 
 ## 🧠 Technical Highlights
 
-* Built with **React + TypeScript**
 * Uses **dnd-kit** for complex drag and drop interactions
 * Optimized drag logic using metadata (`columnId`, `type`) to reduce unnecessary computations
 * Array-based state updates for clarity and ease of reasoning
@@ -32,8 +31,8 @@ Kanban-style task management app built with React, TypeScript and Vite.
 ## ▶️ How to run locally
 
 ```bash
-git clone https://github.com/DavidLSB/kanban-task-manager.git
-cd <project-folder>
+git clone https://github.com/DavidLSB/kanban-board-app.git
+cd kanban-board-app
 npm install
 npm run dev
 ```
