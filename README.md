@@ -1,20 +1,52 @@
 # Kanban Task Manager
 
-Simple task manager built with React + TypeScript.
+Kanban-style task management app built with React, TypeScript and Vite.
 
-## Main Progress
+## 🚀 Features
 
-[ ] Basic CRUD (columns and tasks)
-[x] Drag & drop
-[ ] Pomodoro timer "focus mode"
-[ ] Backend API (Node.js + Express)
-[ ] Database (PostgreSQL)
-[ ] Basic calendar (weekly)
-[ ] Task rewards (text)
-[ ] Deploy
+* Full CRUD for columns and tasks
+* Drag & drop for tasks:
 
-## Tech Stack
+  * Move between columns
+  * Reorder within a column
+* Drag & drop for columns (horizontal reordering)
+* Visual drag preview (insertion indicator)
+* Drag overlay for better UX
+* State managed centrally (Board as source of truth)
 
-- React
-- TypeScript
-- Vite
+## 🧠 Technical Highlights
+
+* Built with **React + TypeScript**
+* Uses **dnd-kit** for complex drag and drop interactions
+* Optimized drag logic using metadata (`columnId`, `type`) to avoid unnecessary updates
+* Array-based state updates for predictable behavior
+* Separation of concerns between Board, Column and Task components
+
+## 📦 Tech Stack
+
+* React
+* TypeScript
+* Vite
+* dnd-kit
+
+## ▶️ How to run locally
+
+```bash
+git clone <your-repo-url>
+cd <project-folder>
+npm install
+npm run dev
+```
+
+## 🎥 Demo
+
+*(Add a short video here showing the main features)*
+
+## 🛠️ Future Improvements
+
+- Improve code structure and modularization
+- Responsive design
+- Persistent storage (localStorage or backend)
+- Pomodoro / focus mode
+- Calendar view
+- Deploy
