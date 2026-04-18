@@ -79,12 +79,12 @@ function Column({
                     value={titleInput}
                     onChange={(e) => setTitleInput(e.target.value)}
                     onBlur={() => {
-                        onUpdateColumnTitle(title, titleInput)
+                        onUpdateColumnTitle(id, titleInput)
                         setIsEditing(false)
                     }}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                            onUpdateColumnTitle(title, titleInput)
+                            onUpdateColumnTitle(id, titleInput)
                             setIsEditing(false)
                         }
                     }}

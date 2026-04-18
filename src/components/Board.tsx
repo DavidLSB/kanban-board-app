@@ -53,11 +53,11 @@ function Board() {
         setColumns([...columns, newColumn])
         setNewColumnTitle("")
     }  
-    function updateColumnTitle(oldTitle: string, newTitle: string) {
+    function updateColumnTitle(columnId: string, newTitle: string) {
         if (!newTitle.trim()) return
 
         const newColumns = columns.map(column => {
-            if (column.title !== oldTitle) return column
+            if (column.id !== columnId) return column
 
             return {
                 ...column,
