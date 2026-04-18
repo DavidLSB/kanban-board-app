@@ -39,7 +39,7 @@ npm run dev
 
 ## 🎥 Demo
 
-*(Add a short video here showing the main features)*
+[Watch demo](https://youtu.be/niUOtIB3ObY)
 
 ## 🛠️ Future Improvements
 
