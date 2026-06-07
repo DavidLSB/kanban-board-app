@@ -105,7 +105,7 @@ function Column({
             style={{
                 width: `${width}px`,
                 padding: "10px",
-
+                flexShrink: 0,
                 border: isOver ? "2px solid blue" : "1px solid gray",
                 backgroundColor: isOver ? "#f0f8ff" : "white"
         }}>

@@ -314,14 +314,16 @@ function Board() {
             onDragEnd={handleDragEnd}
             onDragCancel={() => setPreview(null)}
         >
-            <div>
-                <div 
-                    style={{
-                    display: "flex", 
-                    gap: "20px", 
+            <div 
+                style={{ 
+                    overflowX: "auto",
                     border: "2px solid gray",
                     padding: "10px",
-                    width: "1000px"
+             }}>
+                <div 
+                    style={{
+                        display: "flex", 
+                        gap: "20px"
                 }}>
                     <SortableContext items={columns.map(col => col.id)} strategy={horizontalListSortingStrategy}>    
                         {columns.map((column, index) => (
@@ -346,27 +348,27 @@ function Board() {
                         ))}
                     </SortableContext>
                 </div>
-                <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
-                    <input
-                        value={newTaskTitle}
-                        onChange={(event) => setNewTaskTitle(event.target.value)}
-                        placeholder="Enter task title"
-                    />
-                    <input
-                        value={newTaskDescription}
-                        onChange={(event) => setNewTaskDescription(event.target.value)}
-                        placeholder="Enter description"
-                    />
-                    <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
-                </div>
-                <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
-                    <input
-                        value={newColumnTitle}
-                        onChange={(e) => setNewColumnTitle(e.target.value)}
-                        placeholder="New column"
-                    />
-                    <button onClick={addColumn}>Add Column</button>
-                </div>
+            </div>
+            <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
+                <input
+                    value={newTaskTitle}
+                    onChange={(event) => setNewTaskTitle(event.target.value)}
+                    placeholder="Enter task title"
+                />
+                <input
+                    value={newTaskDescription}
+                    onChange={(event) => setNewTaskDescription(event.target.value)}
+                    placeholder="Enter description"
+                />
+                <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
+            </div>
+            <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
+                <input
+                    value={newColumnTitle}
+                    onChange={(e) => setNewColumnTitle(e.target.value)}
+                    placeholder="New column"
+                />
+                <button onClick={addColumn}>Add Column</button>
             </div>
             <DragOverlay>
                 {activeTask ? renderOverlayTask() : null}
