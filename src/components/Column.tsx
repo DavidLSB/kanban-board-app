@@ -129,11 +129,11 @@ function Column({
                     preview={taskPreview}
                     columnId={id}
                     isOverlay={false}
-                    onDelete={(taskId) => onDeleteTask(taskId, title)}
-                    onUpdateTitle={(newTitle) => onUpdateTaskTitle(task.id, title, newTitle)}
-                    onUpdateDescription={(desc) => onUpdateTaskDescription(task.id, title, desc)}
-                    onMove={(toColumn) => onMoveTask(task.id, title, toColumn)}
-                    onMoveAdjacent={(direction) => onMoveTaskAdjacent(task.id, title, direction)}
+                    onDelete={(taskId) => onDeleteTask(taskId, id)}
+                    onUpdateTitle={(newTitle) => onUpdateTaskTitle(task.id, id, newTitle)}
+                    onUpdateDescription={(desc) => onUpdateTaskDescription(task.id, id, desc)}
+                    onMove={(toColumn) => onMoveTask(task.id, id, toColumn)}
+                    onMoveAdjacent={(direction) => onMoveTaskAdjacent(task.id, id, direction)}
                     isFirstColumn={columnIndex === 0}
                     isLastColumn={columnIndex === totalColumns - 1}
                 />

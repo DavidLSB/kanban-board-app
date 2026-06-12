@@ -90,9 +90,9 @@ function Board() {
         setNewTaskTitle("")
         setNewTaskDescription("")
     }
-    function updateTaskTitle( taskId: string, columnTitle: string, newTitle: string ) {
+    function updateTaskTitle( taskId: string, columnId: string, newTitle: string ) {
         const newColumns = columns.map((column) => {
-            if (column.title !== columnTitle) return column
+            if (column.id !== columnId) return column
 
             return {
             ...column,
@@ -106,9 +106,9 @@ function Board() {
 
         setColumns(newColumns)
     }
-    function updateTaskDescription( taskId: string, columnTitle: string, newDescription: string ) {
+    function updateTaskDescription( taskId: string, columnId: string, newDescription: string ) {
         const newColumns = columns.map((column) => {
-            if (column.title !== columnTitle) return column
+            if (column.id !== columnId) return column
 
             return {
                 ...column,
@@ -124,9 +124,9 @@ function Board() {
 
         setColumns(newColumns)
     }
-    function deleteTask(taskId: string, columnTitle: string) {
+    function deleteTask(taskId: string, columnId: string) {
         const newColumns = columns.map((column) => {
-            if (column.title !== columnTitle) return column
+            if (column.id !== columnId) return column
 
             return {
             ...column,
@@ -172,18 +172,17 @@ function Board() {
         return newColumns
     }
     function moveTaskAdjacent(taskId: string, fromColumn: string, direction: "left" | "right") {
-        const index = columns.findIndex(c => c.title === fromColumn)
-
+        const index = columns.findIndex(c => c.id === fromColumn)
         let targetIndex: number;
         if (direction === "left") {
             targetIndex = index - 1;
         } else {
             targetIndex = index + 1;
         }
-
+        
         if (targetIndex < 0 || targetIndex >= columns.length) return
 
-        const targetColumn = columns[targetIndex].title
+        const targetColumn = columns[targetIndex].id
 
         moveTaskToColumn(taskId, fromColumn, targetColumn, columns)
     }
