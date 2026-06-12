@@ -77,6 +77,7 @@ function Column({
             return (
                 <input
                     value={titleInput}
+                    style={{fontSize: "22px"}}
                     onChange={(e) => setTitleInput(e.target.value)}
                     onBlur={() => {
                         onUpdateColumnTitle(id, titleInput)
@@ -94,7 +95,7 @@ function Column({
         }
 
         return (
-            <h2 onClick={() => setIsEditing(true)}>
+            <h2 onClick={() => setIsEditing(true)} style={{fontSize: "22px"}}>
                 {title}
             </h2>
         )
@@ -137,11 +138,11 @@ function Column({
                     isLastColumn={columnIndex === totalColumns - 1}
                 />
             ))}
-            <button disabled={columnIndex === 0} onClick={() => onMoveColumnAdjacent(columnIndex, "left")}>⬅</button>
-            <button onClick={() => onDeleteColumn(columnIndex)}>
+            <button disabled={columnIndex === 0} onClick={() => onMoveColumnAdjacent(columnIndex, "left")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>⬅</button>
+            <button onClick={() => onDeleteColumn(columnIndex)} style={{minHeight: "44px", minWidth: "88px", fontSize: "18px"}}>
                 Delete
             </button>
-            <button disabled={columnIndex === totalColumns - 1} onClick={() => onMoveColumnAdjacent(columnIndex, "right")}>➡</button>
+            <button disabled={columnIndex === totalColumns - 1} onClick={() => onMoveColumnAdjacent(columnIndex, "right")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>➡</button>
         </div>
     )
 }

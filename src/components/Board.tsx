@@ -349,26 +349,29 @@ function Board() {
                     </SortableContext>
                 </div>
             </div>
-            <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "10px"}}>
                 <input
                     value={newTaskTitle}
                     onChange={(event) => setNewTaskTitle(event.target.value)}
                     placeholder="Enter task title"
+                    style={{fontSize: "18px"}}
                 />
                 <input
                     value={newTaskDescription}
                     onChange={(event) => setNewTaskDescription(event.target.value)}
                     placeholder="Enter description"
+                    style={{fontSize: "18px"}}
                 />
-                <button onClick={addTask} style = {{ marginBottom: "10px" }}>Add Task</button>
+                <button onClick={addTask} style = {{ marginBottom: "10px", minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>Add Task</button>
             </div>
-            <div style={{ display: "flex", gap: "10px", padding: "10px"}}>
+            <div style={{ display: "flex", gap: "10px", flexDirection: "column", padding: "10px"}}>
                 <input
                     value={newColumnTitle}
                     onChange={(e) => setNewColumnTitle(e.target.value)}
                     placeholder="New column"
+                    style={{fontSize: "18px"}}
                 />
-                <button onClick={addColumn}>Add Column</button>
+                <button onClick={addColumn} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>Add Column</button>
             </div>
             <DragOverlay>
                 {activeTask ? renderOverlayTask() : null}

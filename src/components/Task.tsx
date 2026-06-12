@@ -62,6 +62,7 @@ function Task({
             return (
                 <input
                     value={titleInput}
+                    style={{fontSize: "18px"}}
                     onChange={(e) => setTitleInput(e.target.value)}
                     onBlur={() => {
                         onUpdateTitle?.(titleInput)
@@ -79,7 +80,7 @@ function Task({
         }
 
         return (
-            <strong onClick={() => setIsEditingTitle(true)}>
+            <strong onClick={() => setIsEditingTitle(true)} style={{fontSize: "18px"}}>
                 {task.title}
             </strong>
         )
@@ -89,6 +90,7 @@ function Task({
             return (
                 <input
                     value={descInput}
+                    style={{fontSize: "18px"}}
                     onChange={(e) => setDescInput(e.target.value)}
                     onBlur={() => {
                         onUpdateDescription?.(descInput)
@@ -106,7 +108,7 @@ function Task({
         }
 
         return (
-            <p onClick={() => setIsEditingDescription(true)}>
+            <p onClick={() => setIsEditingDescription(true)} style={{fontSize: "18px"}}>
                 {task.description || "No description available."}
             </p>
         )
@@ -135,11 +137,11 @@ function Task({
             </div>
             {renderTitle()}
             {renderDescription()}
-            <button disabled={true}>⬅</button>
-            <button disabled={true}>
+            <button disabled={true} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>⬅</button>
+            <button disabled={true} style={{minHeight: "44px", minWidth: "88px", fontSize: "18px"}}>
                 Delete
             </button>
-            <button disabled={true}>➡</button>
+            <button disabled={true} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>➡</button>
         </div>
         )
     }
@@ -179,11 +181,11 @@ function Task({
             </div>
             {renderTitle()}
             {renderDescription()}
-            <button disabled={isFirstColumn} onClick={() => onMoveAdjacent?.("left")}>⬅</button>
-            <button onClick={() => onDelete?.(task.id)}>
+            <button disabled={isFirstColumn} onClick={() => onMoveAdjacent?.("left")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>⬅</button>
+            <button onClick={() => onDelete?.(task.id)} style={{minHeight: "44px", minWidth: "88px", fontSize: "18px"}}>
                 Delete
             </button>
-            <button disabled={isLastColumn} onClick={() => onMoveAdjacent?.("right")}>➡</button>
+            <button disabled={isLastColumn} onClick={() => onMoveAdjacent?.("right")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>➡</button>
             {preview?.taskId === task.id && preview.position === "below" && (
                 <div style={{
                     height: "4px",
