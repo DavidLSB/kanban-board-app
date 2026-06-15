@@ -36,8 +36,11 @@ cd kanban-board-app
 npm install
 npm run dev
 ```
+## 🌐 Live Demo
 
-## 🎥 Demo
+[Open Live Demo](https://kanban-board-app-13z4.vercel.app/)
+
+## 🎥 Video Demo
 
 [Watch demo](https://youtu.be/niUOtIB3ObY)
 
