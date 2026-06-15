@@ -33,7 +33,7 @@ function Task({
     onDelete, 
     onUpdateTitle, 
     onUpdateDescription, 
-    onMove, 
+//    onMove, 
     onMoveAdjacent, 
     isFirstColumn, 
     isLastColumn
