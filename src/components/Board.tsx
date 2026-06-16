@@ -6,6 +6,7 @@ import Column from "./Column"
 import type { ColumnType } from "./Column"
 import type { Task as TaskType} from "./Task"
 import Task from "./Task"
+import { moveTaskToColumn, reorderTask } from "./utils/BoardUtils"
 const DEFAULT_COLUMNS: ColumnType[] = [{
         id : crypto.randomUUID(),
         title: "To Do",
@@ -150,38 +151,6 @@ function Board() {
     // ====================
     // TASKS MOVEMENT
     // ====================
-    function moveTaskToColumn(
-        taskId: string, 
-        fromColumn: string, 
-        toColumn: string, 
-        columns: ColumnType[]): ColumnType[] {
-        const taskToMove = columns
-            .find(c => c.id === fromColumn)
-            ?.tasks.find(t => t.id === taskId)
-
-        if (!taskToMove || toColumn === fromColumn) return columns
-
-        const newColumns = columns.map(column => {
-            if (column.id === fromColumn) {
-            return {
-                ...column,
-                tasks: column.tasks.filter(t => t.id !== taskId)
-            }
-            }
-
-            if (column.id === toColumn) {
-            return {
-                ...column,
-                tasks: [...column.tasks, taskToMove]
-            }
-            }
-
-            return column
-        })
-
-        setColumns(newColumns)
-        return newColumns
-    }
     function moveTaskAdjacent(taskId: string, fromColumn: string, direction: "left" | "right") {
         const index = columns.findIndex(c => c.id === fromColumn)
         let targetIndex: number;
@@ -195,7 +164,8 @@ function Board() {
 
         const targetColumn = columns[targetIndex].id
 
-        moveTaskToColumn(taskId, fromColumn, targetColumn, columns)
+        const newColumns = moveTaskToColumn(taskId, fromColumn, targetColumn, columns)
+        setColumns(newColumns)
     }
     function handleMoveTask(taskId: string, fromColumn: string, toColumn: string) {
         const newColumns = moveTaskToColumn(
@@ -230,22 +200,6 @@ function Board() {
     // ====================
     // DRAG & DROP
     // ====================
-    function reorderTask(taskId: string, targetTaskId: string, columns: ColumnType[]) {
-        const newColumns = columns.map(column => {
-            const taskIndex = column.tasks.findIndex(t => t.id === taskId)
-            const targetIndex = column.tasks.findIndex(t => t.id === targetTaskId)
-            if (taskIndex === -1 || targetIndex === -1) return column
-            const newTasks = [...column.tasks]
-            const [movedTask] = newTasks.splice(taskIndex, 1)
-            newTasks.splice(targetIndex, 0, movedTask)
-
-            return {
-                ...column,
-                tasks: newTasks
-            }
-        })
-        setColumns(newColumns)
-    }
     function handleDragStart(event: any) {
         const task = event.active.data.current.task
         setActiveTask(task)
@@ -279,9 +233,11 @@ function Board() {
             }
 
             let newColumns: ColumnType[] = moveTaskToColumn(taskId, sourceColumnId, targetColumnId,columns)
+            setColumns(newColumns)
             setPreview(null)
             if (isTaskDrop) {
-                reorderTask(active.id, over.id, newColumns)
+                const newerColumns = reorderTask(active.id, over.id, newColumns)
+                setColumns(newerColumns)
                 return
             }
         }
