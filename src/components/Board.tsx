@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DndContext } from "@dnd-kit/core"
 import { DragOverlay } from "@dnd-kit/core"
 import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
@@ -9,7 +9,7 @@ import Task from "./Task"
 
 
 function Board() {
-    const [columns, setColumns] = useState<ColumnType[]>([{
+    const defaultColumns: ColumnType[] = [{
             id : crypto.randomUUID(),
             title: "To Do",
             tasks: [
@@ -29,7 +29,15 @@ function Board() {
             title: "Done",
             tasks: []
         }
-    ])
+    ]
+    function loadColumns(): ColumnType[] {
+        let prevData = localStorage.getItem("board-data")
+        if (prevData) {
+            return JSON.parse(prevData)
+        }
+        return defaultColumns
+    }
+    const [columns, setColumns] = useState<ColumnType[]>(loadColumns)
     const [newColumnTitle, setNewColumnTitle] = useState("")
     const [newTaskTitle, setNewTaskTitle] = useState("")
     const [newTaskDescription, setNewTaskDescription] = useState("")
@@ -38,6 +46,9 @@ function Board() {
         taskId: string
         position: "above" | "below"
     } | null>(null)
+    useEffect(() => {
+        localStorage.setItem("board-data", JSON.stringify(columns))
+    }, [columns])
     // ====================
     // COLUMNS
     // ====================
