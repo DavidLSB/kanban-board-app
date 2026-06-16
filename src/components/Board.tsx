@@ -6,36 +6,36 @@ import Column from "./Column"
 import type { ColumnType } from "./Column"
 import type { Task as TaskType} from "./Task"
 import Task from "./Task"
-
+const DEFAULT_COLUMNS: ColumnType[] = [{
+        id : crypto.randomUUID(),
+        title: "To Do",
+        tasks: [
+            { id: crypto.randomUUID(), title: "Task 1", description: "" },
+            { id: crypto.randomUUID(), title: "Task 2", description: "" }
+        ]
+    },
+    {
+        id : crypto.randomUUID(),
+        title: "Doing",
+        tasks: [
+            { id: crypto.randomUUID(), title: "Task 3", description: "" }
+        ]
+    },
+    {
+        id : crypto.randomUUID(),
+        title: "Done",
+        tasks: []
+    }
+]
 
 function Board() {
-    const defaultColumns: ColumnType[] = [{
-            id : crypto.randomUUID(),
-            title: "To Do",
-            tasks: [
-                { id: crypto.randomUUID(), title: "Task 1", description: "" },
-                { id: crypto.randomUUID(), title: "Task 2", description: "" }
-            ]
-        },
-        {
-            id : crypto.randomUUID(),
-            title: "Doing",
-            tasks: [
-                { id: crypto.randomUUID(), title: "Task 3", description: "" }
-            ]
-        },
-        {
-            id : crypto.randomUUID(),
-            title: "Done",
-            tasks: []
-        }
-    ]
+    
     function loadColumns(): ColumnType[] {
-        let prevData = localStorage.getItem("board-data")
+        const prevData = localStorage.getItem("board-data")
         if (prevData) {
             return JSON.parse(prevData)
         }
-        return defaultColumns
+        return DEFAULT_COLUMNS
     }
     const [columns, setColumns] = useState<ColumnType[]>(loadColumns)
     const [newColumnTitle, setNewColumnTitle] = useState("")
