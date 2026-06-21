@@ -9,7 +9,7 @@ export function moveTaskToColumn(
         .find(c => c.id === fromColumn)
         ?.tasks.find(t => t.id === taskId)
 
-    if (!taskToMove || toColumn === fromColumn) return columns
+    if (!taskToMove || toColumn === fromColumn || !columns.find(c => c.id === toColumn)) return columns
 
     const newColumns = columns.map(column => {
         if (column.id === fromColumn) {
