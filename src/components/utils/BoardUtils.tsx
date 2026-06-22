@@ -1,5 +1,14 @@
 import type { ColumnType } from "../Column"
 
+
+// Moves a task from one column to another.
+// Parameters:
+// - taskId: The ID of the task to move.
+// - fromColumn: The ID of the column the task is currently in.
+// - toColumn: The ID of the column to move the task to.
+// - columns: The current state of all columns.
+// Returns:
+// - Returns a new array of columns with the task moved to the new column.
 export function moveTaskToColumn(
     taskId: string, 
     fromColumn: string, 
@@ -30,6 +39,14 @@ export function moveTaskToColumn(
     })
     return newColumns
 }
+
+// Moves a task to the position of another task of the same column, pushing other tasks down as needed.
+// Parameters:
+// - taskId: The ID of the task to reorder.
+// - targetTaskId: The ID of the task that will be the new position of the moved task.
+// - columns: The current state of all columns.
+// Returns:
+// - Returns a new array of columns with the task reordered within its column.
 export function reorderTask(taskId: string, targetTaskId: string, columns: ColumnType[]) {
     const newColumns = columns.map(column => {
         const taskIndex = column.tasks.findIndex(t => t.id === taskId)
