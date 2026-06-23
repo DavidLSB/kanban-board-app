@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { DndContext } from "@dnd-kit/core"
 import { DragOverlay } from "@dnd-kit/core"
 import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
+import { pointerWithin } from "@dnd-kit/core"
 import Column from "./Column"
 import type { ColumnType } from "./Column"
 import type { Task as TaskType} from "./Task"
@@ -249,7 +250,6 @@ function Board() {
             setPreview(null)
             return
         }
-
         const targetTaskId = over.id
 
         const rect = over.rect
@@ -279,6 +279,7 @@ function Board() {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDragCancel={() => setPreview(null)}
+            collisionDetection={pointerWithin}
         >
             <div 
                 style={{ 
