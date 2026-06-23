@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react"
-import { DndContext } from "@dnd-kit/core"
-import { DragOverlay } from "@dnd-kit/core"
+import { DndContext, DragOverlay,  pointerWithin, TouchSensor, MouseSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
-import { pointerWithin } from "@dnd-kit/core"
 import Column from "./Column"
 import type { ColumnType } from "./Column"
 import type { Task as TaskType} from "./Task"
@@ -48,6 +46,15 @@ function Board() {
         taskId: string
         position: "above" | "below"
     } | null>(null)
+    const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+        activationConstraint: {
+        delay: 150,
+        tolerance: 5
+        }
+    })
+    )
     useEffect(() => {
         localStorage.setItem("board-data", JSON.stringify(columns))
     }, [columns])
@@ -214,10 +221,9 @@ function Board() {
         const activeType = active.data.current?.type
         const overType = over.data.current?.type
 
-        if (activeType === "column" && overType === "column") {
+        if (activeType === "column" && overType === "column" && active.id !== over.id) {
             const oldIndex = columns.findIndex(c => c.id === active.id)
             const newIndex = columns.findIndex(c => c.id === over.id)
-
             if (oldIndex !== newIndex) {
                 setColumns(arrayMove(columns, oldIndex, newIndex))
             }
@@ -282,6 +288,7 @@ function Board() {
     }
     return (
         <DndContext 
+            sensors={sensors}
             onDragOver={handleDragOver}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
