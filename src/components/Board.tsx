@@ -230,6 +230,10 @@ function Board() {
 
             const isTaskDrop = !!over.data.current?.columnId
             if (isTaskDrop) {
+                if (over.data.current.taskId === taskId) {
+                    setPreview(null)
+                    return
+                }
                 targetColumnId = over.data.current.columnId
             }
 
@@ -237,31 +241,34 @@ function Board() {
             setColumns(newColumns)
             setPreview(null)
             if (isTaskDrop) {
-                const newerColumns = reorderTask(active.id, over.id, newColumns)
-                setColumns(newerColumns)
-                return
+                const suffix = over.id.slice(-4)
+                if (suffix === "-top") {
+                    const newerColumns = reorderTask(active.id, over.data.current.taskId, "above", newColumns)
+                    setColumns(newerColumns)
+                    return
+                } else {
+                    const newerColumns = reorderTask(active.id, over.data.current.taskId, "below", newColumns)
+                    setColumns(newerColumns)
+                    return
+                }
             }
         }
     }
     function handleDragOver(event: any) {
         const { over } = event
-
-        if (!over || !over.data.current?.columnId) {
+        if (!over){ 
             setPreview(null)
             return
         }
-        const targetTaskId = over.id
-
-        const rect = over.rect
-        const middle = rect.top + rect.height / 2
-
-        const mouseY = event.delta.y + rect.top 
-
-        const position = mouseY < middle ? "above" : "below"
+        const data = over.data.current
+        if (!data || data.type !== "task-zone") {
+            setPreview(null)
+            return
+        }
 
         setPreview({
-            taskId: targetTaskId,
-            position
+            taskId: data.taskId,
+            position: data.position
         })
     }
     function renderOverlayTask() {

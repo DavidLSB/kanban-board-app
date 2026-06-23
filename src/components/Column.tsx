@@ -122,22 +122,31 @@ function Column({
             >⠿ Drag
             </div>
             {renderTitle()}
-            {tasks.map((task) => (
-                <Task
-                    key={task.id}
-                    task={task}
-                    preview={taskPreview}
-                    columnId={id}
-                    isOverlay={false}
-                    onDelete={(taskId) => onDeleteTask(taskId, id)}
-                    onUpdateTitle={(newTitle) => onUpdateTaskTitle(task.id, id, newTitle)}
-                    onUpdateDescription={(desc) => onUpdateTaskDescription(task.id, id, desc)}
-                    onMove={(toColumn) => onMoveTask(task.id, id, toColumn)}
-                    onMoveAdjacent={(direction) => onMoveTaskAdjacent(task.id, id, direction)}
-                    isFirstColumn={columnIndex === 0}
-                    isLastColumn={columnIndex === totalColumns - 1}
-                />
-            ))}
+            <div 
+                style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                marginBottom: "10px",
+                }}
+            >
+                {tasks.map((task) => (
+                    <Task
+                        key={task.id}
+                        task={task}
+                        preview={taskPreview}
+                        columnId={id}
+                        isOverlay={false}
+                        onDelete={(taskId) => onDeleteTask(taskId, id)}
+                        onUpdateTitle={(newTitle) => onUpdateTaskTitle(task.id, id, newTitle)}
+                        onUpdateDescription={(desc) => onUpdateTaskDescription(task.id, id, desc)}
+                        onMove={(toColumn) => onMoveTask(task.id, id, toColumn)}
+                        onMoveAdjacent={(direction) => onMoveTaskAdjacent(task.id, id, direction)}
+                        isFirstColumn={columnIndex === 0}
+                        isLastColumn={columnIndex === totalColumns - 1}
+                    />
+                ))}
+            </div>
             <button disabled={columnIndex === 0} onClick={() => onMoveColumnAdjacent(columnIndex, "left")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>⬅</button>
             <button onClick={() => onDeleteColumn(columnIndex)} style={{minHeight: "44px", minWidth: "88px", fontSize: "18px"}}>
                 Delete

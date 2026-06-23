@@ -50,10 +50,22 @@ function Task({
             columnId: columnId
         }
     })
-    const { setNodeRef: setDropRef } = useDroppable({
-        id: task.id,
+    const { setNodeRef: setTopRef } = useDroppable({
+        id: `${task.id}-top`,
         data: {
-            type: "task",
+            type: "task-zone",
+            taskId: task.id,
+            position: "above",
+            columnId: columnId
+        }
+    })
+
+    const { setNodeRef: setBottomRef } = useDroppable({
+        id: `${task.id}-bottom`,
+        data: {
+            type: "task-zone",
+            taskId: task.id,
+            position: "below",
             columnId: columnId
         }
     })
@@ -118,7 +130,6 @@ function Task({
             <div
                 style={{
                     border: "1px solid black",
-                    marginTop: "10px",
                     padding: "5px",
                     opacity: 0.4,
                     transform: "scale(1.05)",
@@ -146,53 +157,83 @@ function Task({
         )
     }
     return (
-        <div
-            ref={(node) => {
-                setNodeRef(node)
-                setDropRef(node)
-            }}
-            style={{
-                border: "1px solid black",
-                marginTop: "10px",
-                padding: "5px",
-                opacity: isDragging ? 0.4 : 1,
-                transform: isDragging ? "scale(1.05)" : "scale(1)",
-                boxShadow: isDragging ? "0px 5px 15px rgba(0,0,0,0.2)" : "none",
-                zIndex: isDragging ? 1000 : "auto"
-        }}>
-            {preview?.taskId === task.id && preview.position === "above" && (
-                <div style={{
-                    height: "4px",
-                    background: "blue",
-                    marginBottom: "4px"
-                }} />
-            )}
+        <div style={{position: "relative"}}>
             <div
-                {...listeners}
-                {...attributes}
+                ref={setTopRef}
                 style={{
-                    cursor: isDragging ? "grabbing" : "grab",
-                    background: "#eee",
-                    padding: "2px",
-                    marginBottom: "5px"
+                    position: "absolute",
+                    top: "-5px",
+                    height: "calc(50% + 5px)",
+                    width: "100%",
+                    zIndex: 1,
+                    pointerEvents: "none"
                 }}
-            >
-                ⠿ Drag
+            />
+            <div
+                ref={setBottomRef}
+                style={{
+                    position: "absolute",
+                bottom: "-5px",
+                height: "calc(50% + 5px)",
+                width: "100%",
+                zIndex: 1,
+                pointerEvents: "none"
+                }}
+            />
+            <div
+                ref={(node) => {
+                    setNodeRef(node)
+                }}
+                style={{
+                    border: "1px solid black",
+                    padding: "5px",
+                    opacity: isDragging ? 0.4 : 1,
+                    transform: isDragging ? "scale(1.05)" : "scale(1)",
+                    boxShadow: isDragging ? "0px 5px 15px rgba(0,0,0,0.2)" : "none",
+                    zIndex: isDragging ? 1000 : 2
+            }}>
+                {preview?.taskId === task.id && preview.position === "above" && (
+                    <div style={{
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        height: "4px",
+                        background: "blue",
+                        pointerEvents: "none",
+                        transform: "translateY(-2px)"
+                    }} />
+                )}
+                <div
+                    {...listeners}
+                    {...attributes}
+                    style={{
+                        cursor: isDragging ? "grabbing" : "grab",
+                        background: "#eee",
+                        padding: "2px",
+                        marginBottom: "5px"
+                    }}
+                >
+                    ⠿ Drag
+                </div>
+                {renderTitle()}
+                {renderDescription()}
+                <button disabled={isFirstColumn} onClick={() => onMoveAdjacent?.("left")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>⬅</button>
+                <button onClick={() => onDelete?.(task.id)} style={{minHeight: "44px", minWidth: "88px", fontSize: "18px"}}>
+                    Delete
+                </button>
+                <button disabled={isLastColumn} onClick={() => onMoveAdjacent?.("right")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>➡</button>
+                {preview?.taskId === task.id && preview.position === "below" && (
+                    <div style={{
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        height: "4px",
+                        background: "blue",
+                        pointerEvents: "none",
+                        transform: "translateY(-2px)"
+                    }} />
+                )}
             </div>
-            {renderTitle()}
-            {renderDescription()}
-            <button disabled={isFirstColumn} onClick={() => onMoveAdjacent?.("left")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>⬅</button>
-            <button onClick={() => onDelete?.(task.id)} style={{minHeight: "44px", minWidth: "88px", fontSize: "18px"}}>
-                Delete
-            </button>
-            <button disabled={isLastColumn} onClick={() => onMoveAdjacent?.("right")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>➡</button>
-            {preview?.taskId === task.id && preview.position === "below" && (
-                <div style={{
-                    height: "4px",
-                    background: "blue",
-                    marginBottom: "4px"
-                }} />
-            )}
         </div>
     )
 }

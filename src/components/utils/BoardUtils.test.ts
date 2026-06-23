@@ -166,6 +166,7 @@ test("reorders tasks within a column", () => {
     const result = reorderTask(
         "task1",
         "task2",
+        "below",
         columns
     )
     expect(result[0].tasks[0].id).toBe("task2")
@@ -194,6 +195,7 @@ test("reorders non-existing task", () => {
     const result = reorderTask(
         "nonExistingTask",
         "task2",
+        "above",
         columns
     )
     expect(result).toEqual(columns)
@@ -221,6 +223,7 @@ test("reorders to non-existing target task", () => {
     const result = reorderTask(
         "task1",
         "nonExistingTask",
+        "above",
         columns
     )
     expect(result).toEqual(columns)
@@ -253,6 +256,7 @@ test("reorders task one slot forward", () => {
     const result = reorderTask(
         "task1",
         "task2",
+        "below",
         columns
     )
     expect(result[0].tasks[0].id).toBe("task2")
@@ -287,6 +291,7 @@ test("reorders task one slot backward", () => {
     const result = reorderTask(
         "task2",
         "task1",
+        "above",
         columns
     )
     expect(result[0].tasks[0].id).toBe("task2")
@@ -321,6 +326,7 @@ test("reorders task to same position", () => {
     const result = reorderTask(
         "task2",
         "task2",
+        "above",
         columns
     )
     expect(result).toEqual(columns)
@@ -337,6 +343,7 @@ test("reorders task in empty column", () => {
     const result = reorderTask(
         "task1",
         "task2",
+        "above",
         columns
     )
     expect(result).toEqual(columns)
@@ -359,6 +366,7 @@ test("reorders task in column with one task", () => {
     const result = reorderTask(
         "task1",
         "task1",
+        "above",
         columns
     )
     expect(result).toEqual(columns)
@@ -406,6 +414,7 @@ test("reorder tasks 5 positions forwards", () => {
     const result = reorderTask(
         "task1",
         "task6",
+        "below",
         columns
     )
     expect(result[0].tasks[0].id).toBe("task2")
@@ -458,6 +467,7 @@ test("reorder tasks 5 positions backwards", () => {
     const result = reorderTask(
         "task6",
         "task1",
+        "above",
         columns
     )
     expect(result[0].tasks[0].id).toBe("task6")
