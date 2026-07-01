@@ -6,6 +6,7 @@ export type Task = {
   id: string
   title: string
   description: string
+  index: number
 }
 
 type TaskProps = {

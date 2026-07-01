@@ -5,26 +5,29 @@ import Column from "./Column"
 import type { ColumnType } from "./Column"
 import type { Task as TaskType} from "./Task"
 import Task from "./Task"
-import { moveTaskToColumn, reorderTask } from "./utils/BoardUtils"
+import { moveTaskToColumn, reorderTask, reindexColumns, reindexTasks } from "./utils/BoardUtils"
 const DEFAULT_COLUMNS: ColumnType[] = [{
         id : crypto.randomUUID(),
         title: "To Do",
         tasks: [
-            { id: crypto.randomUUID(), title: "Task 1", description: "" },
-            { id: crypto.randomUUID(), title: "Task 2", description: "" }
-        ]
+            { id: crypto.randomUUID(), title: "Task 1", description: "", index: 0 },
+            { id: crypto.randomUUID(), title: "Task 2", description: "", index: 1 }
+        ],
+        index: 0
     },
     {
         id : crypto.randomUUID(),
         title: "Doing",
         tasks: [
-            { id: crypto.randomUUID(), title: "Task 3", description: "" }
-        ]
+            { id: crypto.randomUUID(), title: "Task 3", description: "", index: 0 }
+        ],
+        index: 1
     },
     {
         id : crypto.randomUUID(),
         title: "Done",
-        tasks: []
+        tasks: [],
+        index: 2
     }
 ]
 
@@ -64,13 +67,16 @@ function Board() {
     function addColumn() {
         if (!newColumnTitle.trim()) return
 
-        const newColumn = {
-            id : crypto.randomUUID(),
-            title: newColumnTitle,
-            tasks: []
-        }
+        setColumns(prevColumns => {
+            const newColumn = {
+                id: crypto.randomUUID(),
+                title: newColumnTitle,
+                tasks: [],
+                index: prevColumns.length
+            }
 
-        setColumns([...columns, newColumn])
+            return [...prevColumns, newColumn]
+        })
         setNewColumnTitle("")
     }  
     function updateColumnTitle(columnId: string, newTitle: string) {
@@ -87,9 +93,9 @@ function Board() {
 
         setColumns(newColumns)
     }
-    function deleteColumn(index: number) {
-        const newColumns = columns.filter((_, i) => i !== index)
-        setColumns(newColumns)
+    function deleteColumn(columnId: string) {
+        const filtered = columns.filter(column => column.id !== columnId)
+        setColumns(reindexColumns(filtered))
     }
     // ====================
     // TASKS
@@ -97,13 +103,14 @@ function Board() {
     function addTask() {
         if (!newTaskTitle.trim()) return
 
+        const newColumns = [...columns]
         const newTask = {
             id : crypto.randomUUID(),
             title: newTaskTitle,
-            description: newTaskDescription
+            description: newTaskDescription,
+            index: newColumns[0].tasks.length
         }
 
-        const newColumns = [...columns]
         newColumns[0].tasks.push(newTask) // temporarely always on 'To Do' column
 
         setColumns(newColumns)
@@ -145,16 +152,18 @@ function Board() {
         setColumns(newColumns)
     }
     function deleteTask(taskId: string, columnId: string) {
-        const newColumns = columns.map((column) => {
+        const newColumns = columns.map(column => {
             if (column.id !== columnId) return column
 
-            return {
-            ...column,
-            tasks: column.tasks.filter((t) => t.id !== taskId)
-        }
-    })
+            const filtered = column.tasks.filter(t => t.id !== taskId)
 
-    setColumns(newColumns)
+            return {
+                ...column,
+                tasks: reindexTasks(filtered)
+            }
+        })
+
+        setColumns(newColumns)
     }
     // ====================
     // TASKS MOVEMENT
@@ -187,9 +196,10 @@ function Board() {
     // ====================
     // COLUMNS MOVEMENT
     // ====================
-    function moveColumnAdjacent(index: number, direction: "left" | "right") {
+    function moveColumnAdjacent(columnId: string, direction: "left" | "right") {
         const newColumns = [...columns]
 
+        const index = newColumns.findIndex(c => c.id === columnId)
         let targetIndex: number;
         if (direction === "left") {
             targetIndex = index - 1;
@@ -203,7 +213,9 @@ function Board() {
         newColumns[index] = newColumns[targetIndex]
         newColumns[targetIndex] = temp
 
-        setColumns(newColumns)
+        const reIndexed = reindexColumns(newColumns)
+
+        setColumns(reIndexed)
     }
     // ====================
     // DRAG & DROP
@@ -225,7 +237,11 @@ function Board() {
             const oldIndex = columns.findIndex(c => c.id === active.id)
             const newIndex = columns.findIndex(c => c.id === over.id)
             if (oldIndex !== newIndex) {
-                setColumns(arrayMove(columns, oldIndex, newIndex))
+                const moved = arrayMove(columns, oldIndex, newIndex)
+
+                setColumns(
+                    reindexColumns(moved)
+                )
             }
         } else {
             const taskId = active.id
@@ -234,7 +250,7 @@ function Board() {
 
             if (!sourceColumnId) return
 
-            const isTaskDrop = !!over.data.current?.columnId
+            const isTaskDrop = !!over.data.current?.columnId // "Did the user release the drop over a task's position?"
             if (isTaskDrop) {
                 if (over.data.current.taskId === taskId) {
                     setPreview(null)
@@ -307,7 +323,7 @@ function Board() {
                         gap: "20px"
                 }}>
                     <SortableContext items={columns.map(col => col.id)} strategy={horizontalListSortingStrategy}>    
-                        {columns.map((column, index) => (
+                        {columns.map((column) => (
                             <Column 
                                 key={column.id} 
                                 id={column.id}
@@ -320,7 +336,7 @@ function Board() {
                                 taskPreview={preview}
                                 onMoveTask={handleMoveTask}
                                 onMoveTaskAdjacent={moveTaskAdjacent}
-                                columnIndex={index}
+                                index={column.index}
                                 totalColumns={columns.length}
                                 onUpdateColumnTitle={updateColumnTitle}
                                 onMoveColumnAdjacent={moveColumnAdjacent}

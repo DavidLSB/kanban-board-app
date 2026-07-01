@@ -11,14 +11,17 @@ test("moves a task between columns", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 }
-            ]
+            ],
+            index: 0
         },
         {
             id: "doing",
             title: "Doing",
-            tasks: []
+            tasks: [],
+            index: 1
         }
     ]
     const result = moveTaskToColumn(
@@ -30,6 +33,8 @@ test("moves a task between columns", () => {
     expect(result[0].tasks.length).toBe(0)
     expect(result[1].tasks.length).toBe(1)
     expect(result[1].tasks[0].id).toBe("task1")
+    expect(result[0].index).toBe(0)
+    expect(result[1].index).toBe(1)
 })
 
 test("moves non-existing task", () => {
@@ -41,14 +46,17 @@ test("moves non-existing task", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 }
-            ]
+            ],
+            index: 0
         },
         {
             id: "doing",
             title: "Doing",
-            tasks: []
+            tasks: [],
+            index: 1
         }
     ]
     const result = moveTaskToColumn(
@@ -69,14 +77,17 @@ test("nonexisting from column", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 }
-            ]
+            ],
+            index: 0
         },
         {
             id: "doing",
             title: "Doing",
-            tasks: []
+            tasks: [],
+            index: 1
         }
     ]
     const result = moveTaskToColumn(
@@ -97,14 +108,17 @@ test("nonexisting to column", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 }
-            ]
+            ],
+            index: 0
         },
         {
             id: "doing",
             title: "Doing",
-            tasks: []
+            tasks: [],
+            index: 1
         }
     ]
     const result = moveTaskToColumn(
@@ -125,14 +139,17 @@ test("moves task to same column", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 }
-            ]
+            ],
+            index: 0
         },
         {
             id: "doing",
             title: "Doing",
-            tasks: []
+            tasks: [],
+            index: 1
         }
     ]
     const result = moveTaskToColumn(
@@ -153,14 +170,17 @@ test("reorders tasks within a column", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 },
                 {
                     id: "task2",
                     title: "Task 2",
-                    description: ""
+                    description: "",
+                    index: 1
                 }
-            ]
+            ],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -171,6 +191,8 @@ test("reorders tasks within a column", () => {
     )
     expect(result[0].tasks[0].id).toBe("task2")
     expect(result[0].tasks[1].id).toBe("task1")
+    expect(result[0].tasks[0].index).toBe(0)
+    expect(result[0].tasks[1].index).toBe(1)
 })
 
 test("reorders non-existing task", () => {
@@ -182,14 +204,17 @@ test("reorders non-existing task", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 },
                 {
                     id: "task2",
                     title: "Task 2",
-                    description: ""
+                    description: "",
+                    index: 1
                 }
-            ]
+            ],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -210,14 +235,17 @@ test("reorders to non-existing target task", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 },
                 {
                     id: "task2",
                     title: "Task 2",
-                    description: ""
+                    description: "",
+                    index: 1
                 }
-            ]
+            ],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -238,19 +266,23 @@ test("reorders task one slot forward", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 },
                 {
                     id: "task2",
                     title: "Task 2",
-                    description: ""
+                    description: "",
+                    index: 1
                 },
                 {
                     id: "task3",
                     title: "Task 3",
-                    description: ""
+                    description: "",
+                    index: 2
                 }
-            ]
+            ],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -262,6 +294,9 @@ test("reorders task one slot forward", () => {
     expect(result[0].tasks[0].id).toBe("task2")
     expect(result[0].tasks[1].id).toBe("task1")
     expect(result[0].tasks[2].id).toBe("task3")
+    expect(result[0].tasks[0].index).toBe(0)
+    expect(result[0].tasks[1].index).toBe(1)
+    expect(result[0].tasks[2].index).toBe(2)
 })
 
 test("reorders task one slot backward", () => {
@@ -273,19 +308,23 @@ test("reorders task one slot backward", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 },
                 {
                     id: "task2",
                     title: "Task 2",
-                    description: ""
+                    description: "",
+                    index: 1
                 },
                 {
                     id: "task3",
                     title: "Task 3",
-                    description: ""
+                    description: "",
+                    index: 2
                 }
-            ]
+            ],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -297,6 +336,9 @@ test("reorders task one slot backward", () => {
     expect(result[0].tasks[0].id).toBe("task2")
     expect(result[0].tasks[1].id).toBe("task1")
     expect(result[0].tasks[2].id).toBe("task3")
+    expect(result[0].tasks[0].index).toBe(0)
+    expect(result[0].tasks[1].index).toBe(1)
+    expect(result[0].tasks[2].index).toBe(2)
 })
 
 test("reorders task to same position", () => {
@@ -308,19 +350,23 @@ test("reorders task to same position", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 },
                 {
                     id: "task2",
                     title: "Task 2",
-                    description: ""
+                    description: "",
+                    index: 1
                 },
                 {
                     id: "task3",
                     title: "Task 3",
-                    description: ""
+                    description: "",
+                    index: 2
                 }
-            ]
+            ],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -337,7 +383,8 @@ test("reorders task in empty column", () => {
         {
             id: "todo",
             title: "To Do",
-            tasks: []
+            tasks: [],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -358,9 +405,11 @@ test("reorders task in column with one task", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 }
-            ]
+            ],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -381,34 +430,41 @@ test("reorder tasks 5 positions forwards", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 },
                 {
                     id: "task2",
                     title: "Task 2",
-                    description: ""
+                    description: "",
+                    index: 1
                 },
                 {
                     id: "task3",
                     title: "Task 3",
-                    description: ""
+                    description: "",
+                    index: 2
                 },
                 {
                     id: "task4",
                     title: "Task 4",
-                    description: ""
+                    description: "",
+                    index: 3
                 },
                 {
                     id: "task5",
                     title: "Task 5",
-                    description: ""
+                    description: "",
+                    index: 4
                 },
                 {
                     id: "task6",
                     title: "Task 6",
-                    description: ""
+                    description: "",
+                    index: 5
                 }
-            ]
+            ],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -423,6 +479,12 @@ test("reorder tasks 5 positions forwards", () => {
     expect(result[0].tasks[3].id).toBe("task5")
     expect(result[0].tasks[4].id).toBe("task6")
     expect(result[0].tasks[5].id).toBe("task1")
+    expect(result[0].tasks[0].index).toBe(0)
+    expect(result[0].tasks[1].index).toBe(1)
+    expect(result[0].tasks[2].index).toBe(2)
+    expect(result[0].tasks[3].index).toBe(3)
+    expect(result[0].tasks[4].index).toBe(4)
+    expect(result[0].tasks[5].index).toBe(5)
 })
 
 test("reorder tasks 5 positions backwards", () => {
@@ -434,34 +496,41 @@ test("reorder tasks 5 positions backwards", () => {
                 {
                     id: "task1",
                     title: "Task 1",
-                    description: ""
+                    description: "",
+                    index: 0
                 },
                 {
                     id: "task2",
                     title: "Task 2",
-                    description: ""
+                    description: "",
+                    index: 1
                 },
                 {
                     id: "task3",
                     title: "Task 3",
-                    description: ""
+                    description: "",
+                    index: 2
                 },
                 {
                     id: "task4",
                     title: "Task 4",
-                    description: ""
+                    description: "",
+                    index: 3
                 },
                 {
                     id: "task5",
                     title: "Task 5",
-                    description: ""
+                    description: "",
+                    index: 4
                 },
                 {
                     id: "task6",
                     title: "Task 6",
-                    description: ""
+                    description: "",
+                    index: 5
                 }
-            ]
+            ],
+            index: 0
         }
     ]
     const result = reorderTask(
@@ -476,4 +545,10 @@ test("reorder tasks 5 positions backwards", () => {
     expect(result[0].tasks[3].id).toBe("task3")
     expect(result[0].tasks[4].id).toBe("task4")
     expect(result[0].tasks[5].id).toBe("task5")
+    expect(result[0].tasks[0].index).toBe(0)
+    expect(result[0].tasks[1].index).toBe(1)
+    expect(result[0].tasks[2].index).toBe(2)
+    expect(result[0].tasks[3].index).toBe(3)
+    expect(result[0].tasks[4].index).toBe(4)
+    expect(result[0].tasks[5].index).toBe(5)
 })

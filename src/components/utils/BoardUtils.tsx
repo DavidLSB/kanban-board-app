@@ -1,5 +1,29 @@
 import type { ColumnType } from "../Column"
+import type { Task as TaskType } from "../Task"
 
+// Re-indexes all tasks within a column.
+// Parameters:
+// - tasks: The current state of all tasks within a column.
+// Returns:
+// - Returns a new array of tasks with their indexes updated.
+export function reindexTasks(tasks: TaskType[]) {
+    return tasks.map((task, index) => ({
+        ...task,
+        index
+    }))
+}
+
+// Re-indexes all columns.
+// Parameters:
+// - columns: The current state of all columns.
+// Returns:
+// - Returns a new array of columns with their indexes updated.
+export function reindexColumns(columns: ColumnType[]) {
+    return columns.map((column, index) => ({
+        ...column,
+        index
+    }))
+}
 
 // Moves a task from one column to another.
 // Parameters:
@@ -14,25 +38,30 @@ export function moveTaskToColumn(
     fromColumn: string, 
     toColumn: string, 
     columns: ColumnType[]): ColumnType[] {
-    const taskToMove = columns
-        .find(c => c.id === fromColumn)
-        ?.tasks.find(t => t.id === taskId)
+    const sourceColumn = columns.find(c => c.id === fromColumn)
+    const targetColumn = columns.find(c => c.id === toColumn)
 
-    if (!taskToMove || toColumn === fromColumn || !columns.find(c => c.id === toColumn)) return columns
+    if (!sourceColumn || !targetColumn || fromColumn === toColumn) return columns
+
+    const taskToMove = sourceColumn.tasks.find(t => t.id === taskId)
+
+    if (!taskToMove) return columns
 
     const newColumns = columns.map(column => {
         if (column.id === fromColumn) {
-        return {
-            ...column,
-            tasks: column.tasks.filter(t => t.id !== taskId)
-        }
+            const filtered = column.tasks.filter(t => t.id !== taskId)
+            return {
+                ...column,
+                tasks: reindexTasks(filtered)
+            }
         }
 
         if (column.id === toColumn) {
-        return {
-            ...column,
-            tasks: [...column.tasks, taskToMove]
-        }
+            const newTask = { ...taskToMove, index: column.tasks.length }
+            return {
+                ...column,
+                tasks: [...column.tasks, newTask]
+            }
         }
 
         return column
@@ -70,7 +99,7 @@ export function reorderTask(taskId: string, targetTaskId: string, position: "abo
 
         return {
             ...column,
-            tasks: newTasks
+            tasks: reindexTasks(newTasks) // Re-index tasks after reordering
         }
     })
     return newColumns

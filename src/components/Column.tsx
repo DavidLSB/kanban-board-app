@@ -8,18 +8,19 @@ export type ColumnType = {
     id: string
     title: string
     tasks: TaskType[]
+    index: number
 }
 
 type ColumnProps = {
     id: string
     title: string
+    index: number
     width: number
     tasks: TaskType[]
-    columnIndex: number
     totalColumns: number
     onUpdateColumnTitle: (oldTitle: string, newTitle: string) => void
-    onMoveColumnAdjacent: (index: number, direction: "left" | "right") => void
-    onDeleteColumn: (index: number) => void
+    onMoveColumnAdjacent: (id: string, direction: "left" | "right") => void
+    onDeleteColumn: (id: string) => void
     // ====================
     // Tasks prop drilling
     // ====================
@@ -39,7 +40,7 @@ function Column({
     title,
     width,
     tasks,
-    columnIndex,
+    index,
     totalColumns,
     onUpdateColumnTitle,
     onMoveColumnAdjacent,
@@ -142,16 +143,16 @@ function Column({
                         onUpdateDescription={(desc) => onUpdateTaskDescription(task.id, id, desc)}
                         onMove={(toColumn) => onMoveTask(task.id, id, toColumn)}
                         onMoveAdjacent={(direction) => onMoveTaskAdjacent(task.id, id, direction)}
-                        isFirstColumn={columnIndex === 0}
-                        isLastColumn={columnIndex === totalColumns - 1}
+                        isFirstColumn={index === 0}
+                        isLastColumn={index === totalColumns - 1}
                     />
                 ))}
             </div>
-            <button disabled={columnIndex === 0} onClick={() => onMoveColumnAdjacent(columnIndex, "left")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>⬅</button>
-            <button onClick={() => onDeleteColumn(columnIndex)} style={{minHeight: "44px", minWidth: "88px", fontSize: "18px"}}>
+            <button disabled={index === 0} onClick={() => onMoveColumnAdjacent(id, "left")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>⬅</button>
+            <button onClick={() => onDeleteColumn(id)} style={{minHeight: "44px", minWidth: "88px", fontSize: "18px"}}>
                 Delete
             </button>
-            <button disabled={columnIndex === totalColumns - 1} onClick={() => onMoveColumnAdjacent(columnIndex, "right")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>➡</button>
+            <button disabled={index === totalColumns - 1} onClick={() => onMoveColumnAdjacent(id, "right")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>➡</button>
         </div>
     )
 }
