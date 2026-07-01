@@ -46,9 +46,10 @@ npm run dev
 
 ## 🛠️ Future Improvements
 
+- Backend (Node + Express)
+- Authentication
+- Database Persistence
+- Real-time collaboration
 - Improve code structure and modularization
-- Responsive design
-- Persistent storage (localStorage or backend)
 - Pomodoro / focus mode
 - Calendar view
-- Deploy
