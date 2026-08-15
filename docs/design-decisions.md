@@ -16,6 +16,12 @@ Reasons:
 Reasons:
 - Keeping editable sources simplifies long-term maintenance.
 
+○ A resource on the backend is created through a POST request on its parent collection. If a function or file includes all of the CRUD operations for a certain resource, it means it includes the POST method of its parent. The only exception is when a certain resource does not have a Create method (for example, a board's Column Collection does not have either a Create or a delete method since its existence is tightly related to the board's but it does have both a read and an update method).
+
+Reasons:
+- A rule like this makes reading easier, as you always expect the same format when dealing with CRUD operations.
+- This rule was chosen above other simply because it was the first one that came to mind and it does its job nicely.
+
 ○ The data model is designed for multiple users even though the current implementation supports only one board.
 
 Reasons:
