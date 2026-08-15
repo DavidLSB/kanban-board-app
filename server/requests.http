@@ -1,0 +1,22 @@
+### Get board
+GET http://localhost:3001/boards
+
+### Create column
+POST http://localhost:3001/boards/1/columns
+Content-Type: application/json
+
+{
+  "title": "Todo"
+}
+
+### Get columns
+GET http://localhost:3001/boards/1/columns
+
+### Create task
+POST http://localhost:3001/boards/1/columns/6d149a57-ec3d-40f4-99ae-08195fe91194/tasks
+Content-Type: application/json
+
+{
+  "title": "Backend",
+  "description": "Implement CRUD"
+}
