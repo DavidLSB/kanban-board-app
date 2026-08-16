@@ -13,7 +13,7 @@ Content-Type: application/json
 GET http://localhost:3001/boards/1/columns
 
 ### Create task
-POST http://localhost:3001/boards/1/columns/6d149a57-ec3d-40f4-99ae-08195fe91194/tasks
+POST http://localhost:3001/boards/1/columns/dc94ffb0-6d4e-45f5-ac5b-a0677bbcc00b/tasks
 Content-Type: application/json
 
 {
