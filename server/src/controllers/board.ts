@@ -16,7 +16,8 @@ export function createBoard(req: Request, res: Response) {
 }
 
 export function readBoard(req: Request, res: Response) {
-  res.json(board) //placeholder
+  res.json(board)
+  res.status(200).json(board)
 }
 
 export function updateBoard(req: Request, res: Response) {

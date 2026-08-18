@@ -1,9 +1,6 @@
 import { Request, Response } from "express"
 import { findBoard } from "../services/finder.js"
-
-type Params = {
-  boardId: string
-}
+import type {TaskParams as Params} from "../types/Params.js"
 
 //A column Collection does not have either a create or a delete.
 

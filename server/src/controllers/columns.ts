@@ -1,12 +1,8 @@
 import { Request, Response } from "express"
 import { v4 as uuid } from "uuid"
 import type { Column } from "../types/Column.ts"
+import type {ColumnParams as Params} from "../types/Params.js"
 import { findBoard, findColumn } from "../services/finder.js"
-
-type Params = {
-  boardId: string
-  columnId: string
-}
 
 export function createColumn(req: Request<Params>, res: Response) {
   const boardId = req.params.boardId
@@ -34,6 +30,7 @@ export function readColumn(req: Request<Params>, res: Response) {
     return res.status(404).json({error: column.error})
   }
   res.json(column.data)
+  res.status(200).json(column.data)
 }
 
 export function updateColumn(req: Request<Params>, res: Response) {
@@ -45,6 +42,7 @@ export function updateColumn(req: Request<Params>, res: Response) {
   }
   column.data.title = req.body.title
   res.json(column.data)
+  res.status(200).json(column.data)
 }
 
 export function deleteColumn(req: Request<Params>, res: Response) {
@@ -64,4 +62,5 @@ export function deleteColumn(req: Request<Params>, res: Response) {
   }
   board.data.columns = board.data.columns.filter(c => c.id !== req.params.columnId).map((c, index) => ({ ...c, index })) //delete with reindex
   res.json(board.data.columns)
+  res.status(200).json(board.data.columns)
 }

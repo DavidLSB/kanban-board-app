@@ -1,13 +1,8 @@
 import { Request, Response } from "express"
 import { v4 as uuid } from "uuid"
 import type { Task } from "../types/Task.js"
+import type {TaskParams as Params} from "../types/Params.js"
 import { findBoard, findColumn, findTask } from "../services/finder.js"
-
-type Params = {
-  boardId: string
-  columnId: string
-  taskId: string
-}
 
 export function createTask(req: Request<Params>, res: Response) {
   const boardId = req.params.boardId
@@ -39,6 +34,7 @@ export function readTask(req: Request<Params>, res: Response) {
     })
   }
   res.json(task.data)
+  res.status(200).json(task.data)
 }
 
 export function updateTask(req: Request<Params>, res: Response) {
@@ -54,6 +50,7 @@ export function updateTask(req: Request<Params>, res: Response) {
   task.data.title = req.body.title
   task.data.description = req.body.description
   res.json(task.data)
+  res.status(200).json(task.data)
 }
 
 export function deleteTask(req: Request<Params>, res: Response) {
@@ -74,4 +71,5 @@ export function deleteTask(req: Request<Params>, res: Response) {
   }
   column.data.tasks = column.data.tasks.filter(t => t.id !== taskId).map((t, index) => ({ ...t, index })) //delete with reindex
   res.json(column.data.tasks)
+  res.status(200).json(column.data.tasks)
 }

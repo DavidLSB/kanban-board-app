@@ -1,10 +1,7 @@
 import { Request, Response } from "express"
 import { findColumn } from "../services/finder.js"
+import type {ColumnParams as Params} from "../types/Params.js"
 
-type Params = {
-  boardId: string
-  columnId: string
-}
 
 //A task Collection does not have either a create or a delete.
 
@@ -18,6 +15,7 @@ export function readTaskCollection(req: Request<Params>, res: Response) {
     })
   }
   res.json(column.data.tasks)
+  res.status(200)
 }
 
 export function updateTaskCollection(req: Request, res: Response) {
