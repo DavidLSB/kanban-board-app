@@ -37,3 +37,17 @@ export function findTask(boardId: string, columnId: string, taskId: string): Res
 
   return { ok: true, data: task }
 }
+
+export function findColumnWithTask(boardId: string, taskId: string): Result<Column> { 
+  const board = findBoard(boardId)
+  if (!board.ok) return board
+
+  for (const column of board.data.columns) {
+    const task = column.tasks.find(t => t.id === taskId)
+    if (task) {
+      return { ok: true, data: column }
+    }
+  }
+
+  return { ok: false, error: "Task not found" }
+}

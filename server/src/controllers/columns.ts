@@ -29,7 +29,6 @@ export function readColumn(req: Request<Params>, res: Response) {
   if (!column.ok) {
     return res.status(404).json({error: column.error})
   }
-  res.json(column.data)
   res.status(200).json(column.data)
 }
 
@@ -40,8 +39,17 @@ export function updateColumn(req: Request<Params>, res: Response) {
   if (!column.ok) {
     return res.status(404).json({ error: column.error })
   }
-  column.data.title = req.body.title
-  res.json(column.data)
+  const board = findBoard(boardId)
+  if (!board.ok) {
+    return res.status(404).json({ error: board.error })
+  }
+  if (req.body.title !== undefined) column.data.title = req.body.title
+  if (req.body.index !== undefined) column.data.index = req.body.index
+  if (req.body.index !== undefined) {
+    const columns = board.data.columns.filter(c => c.id !== columnId)
+    columns.splice(req.body.index, 0, column.data)
+    board.data.columns = columns.map((c, index) => ({ ...c, index }))
+  }
   res.status(200).json(column.data)
 }
 
@@ -61,6 +69,5 @@ export function deleteColumn(req: Request<Params>, res: Response) {
     })
   }
   board.data.columns = board.data.columns.filter(c => c.id !== req.params.columnId).map((c, index) => ({ ...c, index })) //delete with reindex
-  res.json(board.data.columns)
   res.status(200).json(board.data.columns)
 }

@@ -76,8 +76,9 @@ export function moveTaskToColumn(
 // - position: The position relative to the target task ("above" or "below").
 // - columns: The current state of all columns.
 // Returns:
-// - Returns a new array of columns with the task reordered within its column.
+// - Returns a tuple with a new array of columns with the task reordered within its column and the index of the task on the new column.
 export function reorderTask(taskId: string, targetTaskId: string, position: "above" | "below", columns: ColumnType[]) {
+    let taskFinalIndex = -1
     const newColumns = columns.map(column => {
         const taskIndex = column.tasks.findIndex(t => t.id === taskId)
         const targetIndex = column.tasks.findIndex(t => t.id === targetTaskId)
@@ -96,11 +97,11 @@ export function reorderTask(taskId: string, targetTaskId: string, position: "abo
             adjustedTargetIndex += 1
         } 
         newTasks.splice(adjustedTargetIndex, 0, movedTask)
-
+        taskFinalIndex = adjustedTargetIndex
         return {
             ...column,
             tasks: reindexTasks(newTasks) // Re-index tasks after reordering
         }
     })
-    return newColumns
+    return [newColumns, taskFinalIndex] as [ColumnType[], number]
 }

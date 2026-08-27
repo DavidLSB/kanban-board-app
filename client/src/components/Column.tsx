@@ -28,6 +28,7 @@ type ColumnProps = {
         taskId: string
         position: "above" | "below"
     } | null
+    onAddTask: (columnId: string, title: string, description: string) => void
     onDeleteTask: (taskId: string, columnTitle: string) => void
     onUpdateTaskTitle: ( taskId: string, columnTitle: string, newTitle: string) => void
     onUpdateTaskDescription: (taskId: string, columnTitle: string, newDescription: string) => void
@@ -49,6 +50,7 @@ function Column({
     // Tasks prop drilling
     // ====================
     taskPreview,
+    onAddTask,
     onDeleteTask, 
     onUpdateTaskTitle, 
     onUpdateTaskDescription, 
@@ -57,6 +59,8 @@ function Column({
 }: ColumnProps) {
     const [isEditing, setIsEditing] = useState(false)
     const [titleInput, setTitleInput] = useState(title)
+    const [newTaskTitle, setNewTaskTitle] = useState("")
+    const [newTaskDescription, setNewTaskDescription] = useState("")
     const { setNodeRef, isOver } = useDroppable({id: id})
     const {
     attributes,
@@ -100,6 +104,13 @@ function Column({
                 {title}
             </h2>
         )
+    }
+    function addTask() {
+        if (!newTaskTitle.trim()) return
+
+        onAddTask(id, newTaskTitle, newTaskDescription)
+        setNewTaskTitle("")
+        setNewTaskDescription("")
     }
     return (
         <div 
@@ -147,6 +158,21 @@ function Column({
                         isLastColumn={index === totalColumns - 1}
                     />
                 ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "10px 0" }}>
+                <input
+                    value={newTaskTitle}
+                    onChange={(event) => setNewTaskTitle(event.target.value)}
+                    placeholder="Enter task title"
+                    style={{fontSize: "18px"}}
+                />
+                <input
+                    value={newTaskDescription}
+                    onChange={(event) => setNewTaskDescription(event.target.value)}
+                    placeholder="Enter description"
+                    style={{fontSize: "18px"}}
+                />
+                <button onClick={addTask} style={{ minHeight: "44px", minWidth: "66px", fontSize: "18px" }}>Add Task</button>
             </div>
             <button disabled={index === 0} onClick={() => onMoveColumnAdjacent(id, "left")} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>⬅</button>
             <button onClick={() => onDeleteColumn(id)} style={{minHeight: "44px", minWidth: "88px", fontSize: "18px"}}>

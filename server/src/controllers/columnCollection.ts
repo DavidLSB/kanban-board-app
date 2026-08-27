@@ -12,7 +12,7 @@ export function readColumnCollection(req: Request<Params>, res: Response) {
       error: board.error
     })
   }
-  res.json(board.data.columns)
+  res.status(200).json(board.data.columns)
 }
 
 export function updateColumnCollection(req: Request, res: Response) {

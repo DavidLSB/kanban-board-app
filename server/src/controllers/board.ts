@@ -16,7 +16,6 @@ export function createBoard(req: Request, res: Response) {
 }
 
 export function readBoard(req: Request, res: Response) {
-  res.json(board)
   res.status(200).json(board)
 }
 

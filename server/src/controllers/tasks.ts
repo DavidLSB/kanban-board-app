@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import { v4 as uuid } from "uuid"
 import type { Task } from "../types/Task.js"
 import type {TaskParams as Params} from "../types/Params.js"
-import { findBoard, findColumn, findTask } from "../services/finder.js"
+import { findBoard, findColumn, findTask, findColumnWithTask } from "../services/finder.js"
 
 export function createTask(req: Request<Params>, res: Response) {
   const boardId = req.params.boardId
@@ -33,7 +33,6 @@ export function readTask(req: Request<Params>, res: Response) {
       error: task.error
     })
   }
-  res.json(task.data)
   res.status(200).json(task.data)
 }
 
@@ -47,9 +46,40 @@ export function updateTask(req: Request<Params>, res: Response) {
       error: task.error
     })
   }
-  task.data.title = req.body.title
-  task.data.description = req.body.description
-  res.json(task.data)
+  if (req.body.title !== undefined) task.data.title = req.body.title
+  if (req.body.description !== undefined) task.data.description = req.body.description
+  if (req.body.newColumnId !== undefined) {
+    const currentColumn = findColumn(boardId, columnId)
+    if (!currentColumn.ok) {
+      return res.status(404).json({
+        error: currentColumn.error
+      })
+    }
+    const newColumn = findColumn(boardId, req.body.newColumnId)
+    if (!newColumn.ok) {
+      return res.status(404).json({
+        error: newColumn.error
+      })
+    }
+    currentColumn.data.tasks = currentColumn.data.tasks.filter(t => t.id !== taskId).map((t, index) => ({ ...t, index }))
+    task.data.index = newColumn.data.tasks.length
+    newColumn.data.tasks.push(task.data)
+  }
+  const finalColumnId = req.body.newColumnId !== undefined ? req.body.newColumnId : columnId;
+  const columnToReorder = findColumn(boardId, finalColumnId)
+  if (!columnToReorder.ok) {
+    return res.status(404).json({
+      error: columnToReorder.error
+    })
+  }
+  if (req.body.index !== undefined) {
+    const targetIndex = req.body.index
+    const tasks = columnToReorder.data.tasks.filter(t => t.id !== taskId)
+    tasks.splice(targetIndex, 0, task.data)
+    columnToReorder.data.tasks = tasks.map((t, index) => ({ ...t, index }))
+  } else {
+    columnToReorder.data.tasks = columnToReorder.data.tasks.map((t, index) => ({ ...t, index }))
+  }
   res.status(200).json(task.data)
 }
 
@@ -70,6 +100,5 @@ export function deleteTask(req: Request<Params>, res: Response) {
     })
   }
   column.data.tasks = column.data.tasks.filter(t => t.id !== taskId).map((t, index) => ({ ...t, index })) //delete with reindex
-  res.json(column.data.tasks)
   res.status(200).json(column.data.tasks)
 }
