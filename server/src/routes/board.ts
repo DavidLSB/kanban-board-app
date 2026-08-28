@@ -1,6 +1,6 @@
 import { Router } from "express"
 import type { Application } from "express"
-import  { getBoard as getBoardController, createBoard, readBoard, updateBoard, deleteBoard } from "../controllers/board.js"
+import  { getBoard as getBoardController, createBoard, readBoard, updateBoard, deleteBoard, overwriteBoard } from "../controllers/board.js"
 
 export function getBoard() {
   return getBoardController()
@@ -14,6 +14,6 @@ export function registerBoardRoutes(app: Application) {
   router.get("/boards", readBoard)
   router.put("/boards", updateBoard)
   router.delete("/boards", deleteBoard)
-
+  router.put("/boards/:boardId/overwrite", overwriteBoard) //overwrites the board with local storage data, used for conflict resolution
   app.use(router)
 }

@@ -34,3 +34,18 @@ export function deleteBoard(req: Request, res: Response) {
     message: "Board deletion will be implemented along with multiple boards"
   })
 }
+
+export function overwriteBoard(req: Request, res: Response) {
+  const newBoard: Board = req.body
+  if (!newBoard || !newBoard.columns) {
+    return res.status(400).json({
+      error: "Invalid board data",
+      message: "The request body must contain a valid board object with columns"
+    })
+  }
+  // Overwrite the existing board with the new data
+  board.title = newBoard.title
+  board.columns = newBoard.columns
+
+  res.status(200).json(board)
+}

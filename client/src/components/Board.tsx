@@ -1,51 +1,116 @@
 import { useState, useEffect } from "react"
 import { DndContext, DragOverlay,  pointerWithin, TouchSensor, MouseSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query"
 import Column from "./Column"
 import type { ColumnType } from "./Column"
 import type { Task as TaskType} from "./Task"
 import Task from "./Task"
-import { moveTaskToColumn, reorderTask, reindexColumns, reindexTasks } from "./utils/BoardUtils"
-import { readBoardAPI } from "../api/board"
+import { moveTaskToColumn, reorderTask, reindexColumns, reindexTasks, reorderTaskByIndex } from "./utils/BoardUtils"
+import { readBoardAPI, overwriteBoardAPI } from "../api/board"
 import { newColumnAPI, updateColumnAPI, deleteColumnAPI } from "../api/column"
 import { newTaskAPI, updateTaskAPI, deleteTaskAPI } from "../api/task"
 
-const DEFAULT_COLUMNS: ColumnType[] = [{
-        id : crypto.randomUUID(),
-        title: "To Do",
-        tasks: [
-            { id: crypto.randomUUID(), title: "Task 1", description: "", index: 0 },
-            { id: crypto.randomUUID(), title: "Task 2", description: "", index: 1 }
-        ],
-        index: 0
-    },
-    {
-        id : crypto.randomUUID(),
-        title: "Doing",
-        tasks: [
-            { id: crypto.randomUUID(), title: "Task 3", description: "", index: 0 }
-        ],
-        index: 1
-    },
-    {
-        id : crypto.randomUUID(),
-        title: "Done",
-        tasks: [],
-        index: 2
-    }
-]
-
 function Board() {
-    //const queryClient = useQueryClient() for board metadata editing, not implemented yet.
-    const query = useQuery({ queryKey: ["board-data"], queryFn: readBoardAPI })
+    const [isConflictSolved, setIsConflictSolved] = useState(false)
+    const queryClient = useQueryClient()
+    const query = useQuery({ queryKey: ["board-data"], queryFn: readBoardAPI,
+        select: (serverData) => {
+            const localData = localStorage.getItem("board-data")
+
+            if (isConflictSolved) {
+                return {...serverData, hasConflict: false}
+            }
+            if (serverData && localData) {
+                try {
+                    const localColumns = JSON.parse(localData)
+                    const differs = JSON.stringify(localColumns) !== JSON.stringify(serverData.columns)
+                    return {...serverData, hasConflict: differs}
+                }
+                catch {
+                    return {...serverData, hasConflict: true}
+                }
+            }
+            if (!serverData && !localData) {
+                return {...serverData, hasConflict: false}
+            }
+            return {...serverData, hasConflict: true}
+     }})
+    function loadColumns(): ColumnType[] {
+        const prevData = localStorage.getItem("board-data")
+        if (prevData && prevData !== "undefined") {
+            return JSON.parse(prevData)
+        }
+        return []
+    }
+    const columns: ColumnType[] = query?.data?.columns || loadColumns()
+    const [newColumnTitle, setNewColumnTitle] = useState("")
+    const [activeTask, setActiveTask] = useState<TaskType | null>(null)
+    const [preview, setPreview] = useState<{
+            taskId: string
+            position: "above" | "below"
+        } | null>(null)
+        const sensors = useSensors(
+        useSensor(MouseSensor),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+            delay: 150,
+            tolerance: 5
+            }
+        })
+    )
+    function updateColumns(updater: ColumnType[] | ((prev: ColumnType[]) => ColumnType[])) {
+        queryClient.setQueryData(["board-data"], (oldData: any) => {
+            const currentColumns = oldData.columns || loadColumns()
+            const nextColumns = typeof updater === "function" ? updater(currentColumns) : updater
+            localStorage.setItem("board-data", JSON.stringify(nextColumns))
+            return { ...(oldData || {}), columns: nextColumns }
+        })
+    }
+    // ====================
+    // MUTATIONS
+    // ====================
+    const overwriteBoardMutation = useMutation({ mutationFn: (variables: {title: string,columns: ColumnType[]}) => {
+        const boardId = query?.data?.id
+        if (!boardId) throw new Error("Board ID is not available")
+        return overwriteBoardAPI({id: boardId, title: variables.title, columns: variables.columns})
+    },
+        onSuccess: (updatedServerData, _variables) => {
+            queryClient.setQueryData(["board-data"], (oldData: any) => {
+                return { ...oldData, ...updatedServerData, hasConflict: false }
+            })
+            localStorage.setItem("board-data", JSON.stringify(updatedServerData.columns))
+            setIsConflictSolved(true)
+        }
+    })
     const createColumnMutation = useMutation({ mutationFn: (variables: {title: string, tempId: string}) => {
         const boardId = query?.data?.id
         if (!boardId) throw new Error("Board ID is not available")
         return newColumnAPI(boardId, variables.title)
     },
+    onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: ["board-data"] })
+        const previousData = queryClient.getQueryData(["board-data"])
+        queryClient.setQueryData(["board-data"], (oldData: any) => {
+            if (!oldData) return oldData
+            const newColumns = [...oldData.columns, {
+                id: variables.tempId,
+                title: variables.title,
+                index: oldData.columns.length,
+                tasks: []
+            }]
+            localStorage.setItem("board-data", JSON.stringify(newColumns))
+            return { ...oldData, columns: newColumns }
+        })
+        return { previousData }
+    },
+    onError: (_err, _variables, context) => {
+        if (context?.previousData) {
+            queryClient.setQueryData(["board-data"], context?.previousData)
+        }
+    },
     onSuccess: (savedColumn, variables) => {
-        setColumns(prevColumns => {
+        updateColumns(prevColumns => {
             const newColumns = prevColumns.map(column => {
                 if (column.id === variables.tempId) {
                     return {...column, id: savedColumn.id}
@@ -61,87 +126,188 @@ function Board() {
         const boardId = query?.data?.id
         if (!boardId) throw new Error("Board ID is not available")
         return updateColumnAPI(boardId, variables.columnId, variables.newTitle, variables.newIndex)
+    },
+    onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: ["board-data"] })
+        const previousData = queryClient.getQueryData(["board-data"])
+        queryClient.setQueryData(["board-data"], (oldData: any) => {
+            if (!oldData) return oldData
+            const newColumns = oldData.columns.map((column: ColumnType) => column.id === variables.columnId
+                ? {
+                    ...column,
+                    ...(variables.newTitle !== undefined && { title: variables.newTitle }),
+                    ...(variables.newIndex !== undefined && { index: variables.newIndex })
+                }
+                : column)
+            return { ...oldData, columns: newColumns }
+        })
+        return { previousData }
+    },
+    onError: (_err, _variables, context) => {
+        if (context?.previousData) queryClient.setQueryData(["board-data"], context.previousData)
+    },
+    onSuccess: (savedColumn, variables) => {
+        updateColumns(columns => columns.map(column => column.id === variables.columnId
+            ? { ...column, ...savedColumn }
+            : column))
     }})
     const deleteColumnMutation = useMutation({ mutationFn: (variables: {columnId: string}) => {
         const boardId = query?.data?.id
         if (!boardId) throw new Error("Board ID is not available")
         return deleteColumnAPI(boardId, variables.columnId)
+    },
+    onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: ["board-data"] })
+        const previousData = queryClient.getQueryData(["board-data"])
+        queryClient.setQueryData(["board-data"], (oldData: any) => {
+            if (!oldData) return oldData
+            return { ...oldData, columns: reindexColumns(oldData.columns.filter((column: ColumnType) => column.id !== variables.columnId)) }
+        })
+        return { previousData }
+    },
+    onError: (_err, _variables, context) => {
+        if (context?.previousData) queryClient.setQueryData(["board-data"], context.previousData)
+    },
+    onSuccess: (savedColumns, _variables) => {
+        updateColumns(savedColumns)
     }})
     const createTaskMutation = useMutation({ mutationFn: (variables: {columnId: string, title: string, description: string, tempId: string}) => {
-        const boardId = query?.data?.id
-        if (!boardId) throw new Error("Board ID is not available")
-        return newTaskAPI(boardId, variables.columnId, variables.title, variables.description)
-    },
-    onSuccess: (savedTask, variables) => {
-        setColumns(prevColumns => {
-            const newColumns = prevColumns.map(column => {
-                if (column.id !== variables.columnId) return column
+            const boardId = query?.data?.id
+            if (!boardId) throw new Error("Board ID is not available")
+            return newTaskAPI(boardId, variables.columnId, variables.title, variables.description)
+        },
+        onMutate: async (variables) => {
+            await queryClient.cancelQueries({ queryKey: ["board-data"] })
+            const previousData = queryClient.getQueryData(["board-data"])
+            queryClient.setQueryData(["board-data"], (oldData: any) => {
+                if (!oldData) return oldData
+                const newColumns = oldData.columns.map((column: ColumnType) => {
+                    if (column.id !== variables.columnId) return column
+                    const createdTask = {
+                        id: variables.tempId,
+                        title: variables.title,
+                        description: variables.description,
+                        index: column.tasks.length
+                    }
+                    return {
+                        ...column,
+                        tasks: [...column.tasks, createdTask]
+                    }
+                })
 
-                return {
-                    ...column,
-                    tasks: column.tasks.map(task => {
-                        if (task.id === variables.tempId) {
-                            return {...task, id: savedTask.id}
-                        } else {
-                            return task
-                        }
-                    })
-                }
+                localStorage.setItem("board-data", JSON.stringify(newColumns))
+                return { ...oldData, columns: newColumns }
             })
+            return { previousData }
+        },
+        onError: (_err, _variables, context) => {
+            if (context?.previousData) {
+                queryClient.setQueryData(["board-data"], context?.previousData)
+            }
+        },
+        onSuccess: (savedTask, variables) => {
+            updateColumns(prevColumns => {
+                const newColumns = prevColumns.map(column => {
+                    if (column.id !== variables.columnId) return column
 
-            return newColumns
-        })
-    }})
+                    return {
+                        ...column,
+                        tasks: column.tasks.map(task => {
+                            if (task.id === variables.tempId) {
+                                return {...task, id: savedTask.id}
+                            } else {
+                                return task
+                            }
+                        })
+                    }
+                })
+
+                return newColumns
+            })
+        }})
     const updateTaskMutation = useMutation({ mutationFn: (variables: {columnId: string, taskId: string, newTitle?: string, newDescription?: string, newIndex?: number, newColumnId?: string}) => {
         const boardId = query?.data?.id
         if (!boardId) throw new Error("Board ID is not available")
         return updateTaskAPI(boardId, variables.columnId, variables.taskId, variables.newTitle, variables.newDescription, variables.newIndex, variables.newColumnId)
+    },
+    onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: ["board-data"] })
+        const previousData = queryClient.getQueryData(["board-data"])
+        queryClient.setQueryData(["board-data"], (oldData: any) => {
+            if (!oldData) return oldData
+            
+            let currentColumns = [...oldData.columns]
+            if (variables.newColumnId && variables.newColumnId !== variables.columnId) {
+                currentColumns = moveTaskToColumn(variables.taskId, variables.columnId, variables.newColumnId, currentColumns)
+            }
+            const targetColumnId = variables.newColumnId || variables.columnId
+            if (variables.newIndex !== undefined) {
+                const [reorderedColumns] = reorderTaskByIndex(targetColumnId, variables.taskId, variables.newIndex, currentColumns)
+                currentColumns = reorderedColumns
+            }
+            const finalColumns = currentColumns.map((column: ColumnType) => {
+                if (column.id !== targetColumnId) return column
+
+                return {
+                    ...column,
+                    tasks: reindexTasks(column.tasks.map(task => {
+                        if (task.id !== variables.taskId) return task
+
+                        return {
+                            ...task,
+                            ...(variables.newTitle !== undefined && { title: variables.newTitle }),
+                            ...(variables.newDescription !== undefined && { description: variables.newDescription })
+                        }
+                    }))
+                }
+            })
+            return { ...oldData, columns: finalColumns }
+        })
+        return { previousData }
+    },
+    onError: (_err, _variables, context) => {
+        if (context?.previousData) queryClient.setQueryData(["board-data"], context.previousData)
+    },
+    onSuccess: (savedTask, variables) => {
+        updateColumns(columns => columns.map(column => ({
+            ...column,
+            tasks: column.tasks.map(task => task.id === variables.taskId
+                ? { ...task, ...savedTask }
+                : task)
+        })))
     }})
     const deleteTaskMutation = useMutation({ mutationFn: (variables: {columnId: string, taskId: string}) => {
         const boardId = query?.data?.id
         if (!boardId) throw new Error("Board ID is not available")
         return deleteTaskAPI(boardId, variables.columnId, variables.taskId)
+    },
+    onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: ["board-data"] })
+        const previousData = queryClient.getQueryData(["board-data"])
+        queryClient.setQueryData(["board-data"], (oldData: any) => {
+            if (!oldData) return oldData
+            const newColumns = oldData.columns.map((column: ColumnType) => column.id === variables.columnId
+                ? { ...column, tasks: reindexTasks(column.tasks.filter(task => task.id !== variables.taskId)) }
+                : column)
+            return { ...oldData, columns: newColumns }
+        })
+        return { previousData }
+    },
+    onError: (_err, _variables, context) => {
+        if (context?.previousData) queryClient.setQueryData(["board-data"], context.previousData)
+    },
+    onSuccess: (_savedTasks, variables) => {
+        updateColumns(columns => columns.map(column => column.id === variables.columnId
+            ? { ...column, tasks: reindexTasks(column.tasks.filter(task => task.id !== variables.taskId)) }
+            : column))
     }})
-    function loadColumns(): ColumnType[] {
-        const prevData = localStorage.getItem("board-data")
-        if (prevData) {
-            return JSON.parse(prevData)
-        }
-        return DEFAULT_COLUMNS
-    }
-    const [isConflictSolved, setIsConflictSolved] = useState(false)
-    const [columns, setColumns] = useState<ColumnType[]>(loadColumns)
-    const [newColumnTitle, setNewColumnTitle] = useState("")
-    const [activeTask, setActiveTask] = useState<TaskType | null>(null)
-    const [preview, setPreview] = useState<{
-        taskId: string
-        position: "above" | "below"
-    } | null>(null)
-    const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor, {
-        activationConstraint: {
-        delay: 150,
-        tolerance: 5
-        }
-    })
-    )
-    useEffect(() => {
-        localStorage.setItem("board-data", JSON.stringify(columns))
-    }, [columns])
     // ====================
     // COLUMNS
     // ====================
     function addColumn() {
         if (!newColumnTitle.trim()) return
-        const createdColumn = {
-            id: crypto.randomUUID(),
-            title: newColumnTitle,
-            tasks: [],
-            index: columns.length
-        }
-        setColumns(prevColumns => [...prevColumns, createdColumn])
-        createColumnMutation.mutate({title: newColumnTitle, tempId: createdColumn.id})
+        const tempId = crypto.randomUUID()
+        createColumnMutation.mutate({title: newColumnTitle, tempId})
         setNewColumnTitle("")
     }  
     function updateColumnTitle(columnId: string, newTitle: string) {
@@ -156,11 +322,11 @@ function Board() {
             }
         })
         updateColumnMutation.mutate({columnId, newTitle})
-        setColumns(newColumns)
+        updateColumns(newColumns)
     }
     function deleteColumn(columnId: string) {
         const filtered = columns.filter(column => column.id !== columnId)
-        setColumns(reindexColumns(filtered))
+        updateColumns(reindexColumns(filtered))
         deleteColumnMutation.mutate({columnId})
     }
     // ====================
@@ -168,26 +334,8 @@ function Board() {
     // ====================
     function addTask(columnId: string, title: string, description: string) {
         if (!title.trim()) return
-
-        const createdTask = {
-            id: crypto.randomUUID(),
-            title,
-            description,
-            index: columns.find(c => c.id === columnId)?.tasks.length || 0
-        }
-        
-        const newColumns = columns.map(column => {
-            if (column.id !== columnId) return column
-
-            
-
-            return {
-                ...column,
-                tasks: [...column.tasks, createdTask]
-            }
-        })
-        setColumns(newColumns)
-        createTaskMutation.mutate({columnId, title, description, tempId: createdTask.id})
+        const tempId = crypto.randomUUID()
+        createTaskMutation.mutate({columnId, title, description, tempId})
     }
     function updateTaskTitle( taskId: string, columnId: string, newTitle: string ) {
         let taskDescription = ""
@@ -208,7 +356,7 @@ function Board() {
         })
 
         updateTaskMutation.mutate({ columnId, taskId, newTitle, newDescription: taskDescription })
-        setColumns(newColumns)
+        updateColumns(newColumns)
     }
     function updateTaskDescription( taskId: string, columnId: string, newDescription: string ) {
         let taskTitle = ""
@@ -229,7 +377,7 @@ function Board() {
         })
 
         updateTaskMutation.mutate({ columnId, taskId, newTitle: taskTitle, newDescription })
-        setColumns(newColumns)
+        updateColumns(newColumns)
     }
     function deleteTask(taskId: string, columnId: string) {
         const newColumns = columns.map(column => {
@@ -244,7 +392,7 @@ function Board() {
         })
 
         deleteTaskMutation.mutate({ columnId, taskId })
-        setColumns(newColumns)
+        updateColumns(newColumns)
     }
     // ====================
     // TASKS MOVEMENT
@@ -264,7 +412,7 @@ function Board() {
 
         const newColumns = moveTaskToColumn(taskId, fromColumn, targetColumn, columns)
         updateTaskMutation.mutate({ columnId: fromColumn, taskId, newColumnId: targetColumn })
-        setColumns(newColumns)
+        updateColumns(newColumns)
     }
     function handleMoveTask(taskId: string, fromColumn: string, toColumn: string) {
         const newColumns = moveTaskToColumn(
@@ -273,7 +421,7 @@ function Board() {
             toColumn,
             columns
         )
-        setColumns(newColumns)
+        updateColumns(newColumns)
     }
     // ====================
     // COLUMNS MOVEMENT
@@ -298,7 +446,7 @@ function Board() {
         const reIndexed = reindexColumns(newColumns)
 
         updateColumnMutation.mutate({ columnId, newIndex: targetIndex })
-        setColumns(reIndexed)
+        updateColumns(reIndexed)
     }
     // ====================
     // DRAG & DROP
@@ -323,7 +471,7 @@ function Board() {
                 const moved = arrayMove(columns, oldIndex, newIndex)
 
                 updateColumnMutation.mutate({ columnId: active.id, newIndex })
-                setColumns(
+                updateColumns(
                     reindexColumns(moved)
                 )
             }
@@ -344,19 +492,19 @@ function Board() {
             }
 
             let newColumns: ColumnType[] = moveTaskToColumn(taskId, sourceColumnId, targetColumnId,columns)
-            setColumns(newColumns)
+            updateColumns(newColumns)
             setPreview(null)
             if (isTaskDrop) {
                 const suffix = over.id.slice(-4)
                 if (suffix === "-top") {
                     const [newerColumns, newTaskIndex] = reorderTask(active.id, over.data.current.taskId, "above", newColumns)
                     updateTaskMutation.mutate({ columnId: sourceColumnId, taskId, newIndex: newTaskIndex, newColumnId: targetColumnId })
-                    setColumns(newerColumns)
+                    updateColumns(newerColumns)
                     return
                 } else {
                     const [newerColumns, newTaskIndex] = reorderTask(active.id, over.data.current.taskId, "below", newColumns)
                     updateTaskMutation.mutate({ columnId: sourceColumnId, taskId, newIndex: newTaskIndex, newColumnId: targetColumnId })
-                    setColumns(newerColumns)
+                    updateColumns(newerColumns)
                     return
                 }
             } else {
@@ -393,24 +541,12 @@ function Board() {
     // ====================
     // DATA SELECTION: AUTOSAVE VS SERVER
     // ====================
-    function localStorageDiffersFromServerData(): boolean {
-        if (isConflictSolved) return false
-        const localData = localStorage.getItem("board-data")
-        const serverData = query?.data
-        if (serverData && localData) {
-            const localColumns: ColumnType[] = JSON.parse(localData)
-            const serverColumns: ColumnType[] = serverData.columns
-            return JSON.stringify(localColumns) !== JSON.stringify(serverColumns)
-        }
-        if (!serverData && !localData) return false
-        return true
-    }
     function loadserverData() {
         const serverData = query?.data
         if (!serverData) return
 
         const serverColumns: ColumnType[] = serverData.columns
-        setColumns(serverColumns)
+        updateColumns(serverColumns)
         setIsConflictSolved(true)
     }
     function loadLocalStorageData() {
@@ -418,34 +554,105 @@ function Board() {
         if (!localData) return
 
         const localColumns: ColumnType[] = JSON.parse(localData)
-        //make the server board match the local board, for now just set the columns to the local columns
-        setColumns(localColumns)
-        setIsConflictSolved(true)
+        overwriteBoardMutation.mutate({title: query.data?.title || "My board", columns: localColumns})
     }
     if (query.isLoading) {
         return <div>Loading...</div>
     }
-    if (localStorageDiffersFromServerData()) {
+    if (query.data?.hasConflict && !isConflictSolved) {
+        const localColumns = JSON.parse(localStorage.getItem("board-data") || "[]")
+        const serverColumns = query.data?.columns || []
         return (
             <div 
                 style={{ 
-                    overflowX: "auto",
-                    border: "2px solid gray",
-                    padding: "1px"
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: "20px",
+                    boxSizing: "border-box",
+                    backgroundColor: "#FFFFFF",
+                    color: "white",
+                    overflowY: "auto",
+                    alignItems: "center",
              }}>
                 <h1
                     style={{ lineHeight: "1.4", marginBottom: "15px" }}>Local data differs from server data. Do you wish to load latest auto save or continue from server data?</h1>
                 <p>Choose an option to resolve the data discrepancy.</p>
                 <div
                     style={{
-                        display: "flex", 
+                        display: "flex",
+                        width: "95%",
+                        border: "2px solid gray",
+                        borderRadius: "8px",
+                        padding: "16px",
                         gap: "20px",
                         justifyContent: "center",
-                        alignItems: "center",
-                        marginTop: "20px"
                     }}>
-                    <button onClick={loadLocalStorageData} style = {{ marginBottom: "10px", minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>Load Auto Save</button>
-                    <button onClick={loadserverData} style = {{ marginBottom: "10px", minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>Load Server Data</button>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", border: "2px solid #6ba4ff", borderRadius: "8px", padding: "16px", color: "white", maxWidth: "50%", minWidth: "10px" }}>
+                            <h2 style={{ marginBottom: "10px", color: "#080827" }}>Auto Save from local storage</h2>
+                            <div style={{ marginBottom: "10px", fontSize: "16px", color: "white" }}>
+                                <button onClick={loadLocalStorageData} style = {{ marginBottom: "10px", minHeight: "44px", minWidth: "66px", fontSize: "18px", cursor: "pointer"}}>Load Auto Save</button>
+                            </div>
+                            <div style={{ maxHeight: "750px", overflowX: "auto", overflowY: "auto", border: "1px solid #000000", borderRadius: "4px", padding: "10px", userSelect: "none"}}>
+                                <div style={{ display: "flex", gap: "20px", color:"black", backgroundColor: "#d1d1d1", minHeight: "fit-content", minWidth: "fit-content",padding: "10px", borderRadius: "4px"}}>
+                                    {localColumns.map((column: ColumnType) => (
+                                        <div inert>
+                                            <Column
+                                                key={column.id}
+                                                id={column.id}
+                                                tasks={column.tasks} 
+                                                title={column.title} 
+                                                width={300}
+                                                onDeleteTask={() => {}}
+                                                onAddTask={() => {}}
+                                                onUpdateTaskTitle={() => {}}
+                                                onUpdateTaskDescription={() => {}}
+                                                taskPreview={null}
+                                                onMoveTask={() => {}}
+                                                onMoveTaskAdjacent={() => {}}
+                                                index={column.index}
+                                                totalColumns={columns.length}
+                                                onUpdateColumnTitle={() => {}}
+                                                onMoveColumnAdjacent={() => {}}
+                                                onDeleteColumn={() => {}}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", border: "2px solid #dd9c9c", borderRadius: "8px", padding: "16px", color: "white", maxWidth: "50%", minWidth: "10px" }}>
+                            <h2 style={{ marginBottom: "10px", color: "#9e4b4b" }}>Last server sized save</h2>
+                            <div style={{ marginBottom: "10px", fontSize: "16px", color: "white" }}>
+                                <button onClick={loadserverData} style = {{ marginBottom: "10px", minHeight: "44px", minWidth: "66px", fontSize: "18px", cursor: "pointer"}}>Load Server Data</button>
+                            </div>
+                            <div style={{ maxHeight: "750px", overflowX: "auto", overflowY: "auto", border: "1px solid #000000", borderRadius: "4px", padding: "10px", userSelect: "none"}}>
+                                <div style={{ display: "flex", gap: "20px", color:"black", backgroundColor: "#d1d1d1", minHeight: "fit-content", minWidth: "fit-content",padding: "10px", borderRadius: "4px"}}>
+                                    {serverColumns.map((column: ColumnType) => (
+                                        <div inert>
+                                            <Column
+                                                key={column.id}
+                                                id={column.id}
+                                                tasks={column.tasks} 
+                                                title={column.title} 
+                                                width={300}
+                                                onDeleteTask={() => {}}
+                                                onAddTask={() => {}}
+                                                onUpdateTaskTitle={() => {}}
+                                                onUpdateTaskDescription={() => {}}
+                                                taskPreview={null}
+                                                onMoveTask={() => {}}
+                                                onMoveTaskAdjacent={() => {}}
+                                                index={column.index}
+                                                totalColumns={columns.length}
+                                                onUpdateColumnTitle={() => {}}
+                                                onMoveColumnAdjacent={() => {}}
+                                                onDeleteColumn={() => {}}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                 </div>
              </div>
         )
@@ -459,7 +666,7 @@ function Board() {
             onDragCancel={() => setPreview(null)}
             collisionDetection={pointerWithin}
         >
-            <h1>{localStorageDiffersFromServerData().toString()}</h1>
+            <h1>{query.data?.hasConflict?.toString()}</h1>
             <h1>{query?.data?.title}</h1>
             <div 
                 style={{ 

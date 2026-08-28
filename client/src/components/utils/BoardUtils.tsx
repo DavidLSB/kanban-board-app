@@ -105,3 +105,32 @@ export function reorderTask(taskId: string, targetTaskId: string, position: "abo
     })
     return [newColumns, taskFinalIndex] as [ColumnType[], number]
 }
+
+// Moves a task to a specific index within its column, pushing other tasks down as needed.
+// Parameters:
+// - taskId: The ID of the task to reorder.
+// - newIndex: The new index for the task within its column.
+// - columns: The current state of all columns.
+// Returns:
+// - Returns a tuple with a new array of columns with the task reordered within its column and the index of the task on the new column.
+export function reorderTaskByIndex(columnId: string, taskId: string, newIndex: number, columns: ColumnType[]) {
+    let taskFinalIndex = -1
+    const newColumns = columns.map(column => {
+        if (column.id !== columnId) return column
+
+        const taskIndex = column.tasks.findIndex(t => t.id === taskId)
+        if (taskIndex === -1) return column
+
+        const newTasks = [...column.tasks]
+        const [movedTask] = newTasks.splice(taskIndex, 1)
+
+        const boundedNewIndex = Math.max(0, Math.min(newIndex, newTasks.length))
+        newTasks.splice(boundedNewIndex, 0, movedTask)
+        taskFinalIndex = boundedNewIndex
+        return {
+            ...column,
+            tasks: reindexTasks(newTasks)
+        }
+    })
+    return [newColumns, taskFinalIndex] as [ColumnType[], number]
+}
