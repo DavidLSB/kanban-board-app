@@ -183,7 +183,7 @@ test("reorders tasks within a column", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "task1",
         "task2",
         "below",
@@ -217,7 +217,7 @@ test("reorders non-existing task", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "nonExistingTask",
         "task2",
         "above",
@@ -248,7 +248,7 @@ test("reorders to non-existing target task", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "task1",
         "nonExistingTask",
         "above",
@@ -285,7 +285,7 @@ test("reorders task one slot forward", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "task1",
         "task2",
         "below",
@@ -327,7 +327,7 @@ test("reorders task one slot backward", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "task2",
         "task1",
         "above",
@@ -369,7 +369,7 @@ test("reorders task to same position", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "task2",
         "task2",
         "above",
@@ -387,7 +387,7 @@ test("reorders task in empty column", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "task1",
         "task2",
         "above",
@@ -412,7 +412,7 @@ test("reorders task in column with one task", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "task1",
         "task1",
         "above",
@@ -467,7 +467,7 @@ test("reorder tasks 5 positions forwards", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "task1",
         "task6",
         "below",
@@ -533,7 +533,7 @@ test("reorder tasks 5 positions backwards", () => {
             index: 0
         }
     ]
-    const [result, newTaskIndex] = reorderTask(
+    const [result] = reorderTask(
         "task6",
         "task1",
         "above",
