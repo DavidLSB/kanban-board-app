@@ -20,7 +20,6 @@ type TaskProps = {
     onDelete?: (taskId: string) => void
     onUpdateTitle?: (title: string) => void
     onUpdateDescription?: (desc: string) => void
-    onMove?: (toColumn: string) => void
     onMoveAdjacent?: (direction: "left" | "right") => void
     isFirstColumn?: boolean
     isLastColumn?: boolean
@@ -34,7 +33,6 @@ function Task({
     onDelete, 
     onUpdateTitle, 
     onUpdateDescription, 
-//    onMove, 
     onMoveAdjacent, 
     isFirstColumn, 
     isLastColumn

@@ -32,7 +32,6 @@ type ColumnProps = {
     onDeleteTask: (taskId: string, columnTitle: string) => void
     onUpdateTaskTitle: ( taskId: string, columnTitle: string, newTitle: string) => void
     onUpdateTaskDescription: (taskId: string, columnTitle: string, newDescription: string) => void
-    onMoveTask: (taskId: string, fromColumn: string, toColumn: string) => void
     onMoveTaskAdjacent: (taskId: string, fromColumn: string, direction: "left" | "right") => void
 }
 
@@ -54,7 +53,6 @@ function Column({
     onDeleteTask, 
     onUpdateTaskTitle, 
     onUpdateTaskDescription, 
-    onMoveTask,
     onMoveTaskAdjacent
 }: ColumnProps) {
     const [isEditing, setIsEditing] = useState(false)
@@ -120,6 +118,7 @@ function Column({
                 padding: "10px",
                 flexShrink: 0,
                 border: isOver ? "2px solid blue" : "1px solid gray",
+                borderRadius: "10px",
                 backgroundColor: isOver ? "#f0f8ff" : "white"
         }}>
             <div 
@@ -152,7 +151,6 @@ function Column({
                         onDelete={(taskId) => onDeleteTask(taskId, id)}
                         onUpdateTitle={(newTitle) => onUpdateTaskTitle(task.id, id, newTitle)}
                         onUpdateDescription={(desc) => onUpdateTaskDescription(task.id, id, desc)}
-                        onMove={(toColumn) => onMoveTask(task.id, id, toColumn)}
                         onMoveAdjacent={(direction) => onMoveTaskAdjacent(task.id, id, direction)}
                         isFirstColumn={index === 0}
                         isLastColumn={index === totalColumns - 1}

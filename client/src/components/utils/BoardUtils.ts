@@ -100,7 +100,7 @@ export function reorderTask(taskId: string, targetTaskId: string, position: "abo
         taskFinalIndex = adjustedTargetIndex
         return {
             ...column,
-            tasks: reindexTasks(newTasks) // Re-index tasks after reordering
+            tasks: reindexTasks(newTasks)
         }
     })
     return [newColumns, taskFinalIndex] as [ColumnType[], number]
