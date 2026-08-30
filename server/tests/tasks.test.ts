@@ -68,7 +68,7 @@ describe("Tasks CRUD", () => {
     expect(taskResponse.body.title).toBe("My task")
     expect(taskResponse.body.description).toBe("My task description")
     const taskId = taskResponse.body.id
-    const updateResponse = await request(app).put(`/boards/1/columns/${columnId}/tasks/${taskId}`).send({ title: "My updated task", description: "My updated task description" })
+    const updateResponse = await request(app).patch(`/boards/1/columns/${columnId}/tasks/${taskId}`).send({ title: "My updated task", description: "My updated task description" })
 
     expect(updateResponse.status).toBe(200)
     expect(updateResponse.body.title).toBe("My updated task")

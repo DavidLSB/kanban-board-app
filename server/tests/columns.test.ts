@@ -49,7 +49,7 @@ describe("Columns CRUD", () => {
     expect(response.status).toBe(201)
     expect(response.body.title).toBe("My column")
     const id = response.body.id
-    const updateResponse = await request(app).put(`/boards/1/columns/${id}`).send({ title: "My updated column" })
+    const updateResponse = await request(app).patch(`/boards/1/columns/${id}`).send({ title: "My updated column" })
 
     expect(updateResponse.status).toBe(200)
     expect(updateResponse.body.title).toBe("My updated column")
