@@ -33,20 +33,20 @@ function User() {
             console.error("Failed to create user:", error)
         }
     })
-    const { isLoading: isVerifying } = useQuery({
+    const { isLoading: isVerifying, isError } = useQuery({
         queryKey: ["verifyUser", user?.id],
         queryFn: () => verifyUserAPI(user!.id),
         enabled: !!user,
-        retry: false,
-        meta: {
-            onError: () => {
-                localStorage.removeItem("user-data")
-                setUser(null)
-                console.error("Failed to verify user")
-                createUserMutation.mutate()
-            }
-        }
+        retry: false
     })
+    useEffect(() => {
+        if (isError) {
+            localStorage.removeItem("user-data")
+            setUser(null)
+            console.error("Failed to verify user")
+            createUserMutation.mutate()
+        }
+    }, [isError])
     useEffect(() => {
         if (!user && !isVerifying && !createUserMutation.isPending && !createUserMutation.isSuccess) {
             createUserMutation.mutate()

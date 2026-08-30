@@ -8,12 +8,9 @@ let mockDb = {
   users: {} as Record<string, User>
 }
 
-export function getUserBackend(userId: string) {
+export function getUserBackend(userId: string): User | null {
   const user = mockDb.users[userId]
-  if (!user) {
-    throw null
-  }
-  return user
+  return user ?? null
 }
 
 export function createUser(_req: Request<Params>, res: Response) {
