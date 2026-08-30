@@ -22,7 +22,7 @@ export async function updateColumnAPI(boardId: string, columnId: string, newTitl
     if (newTitle !== undefined) body.title = newTitle;
     if (newIndex !== undefined) body.index = newIndex;
     const response = await fetch(`${API_URL}/boards/${boardId}/columns/${columnId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
             "Content-Type": "application/json",
         },

@@ -6,7 +6,7 @@ export function registerTasksCollectionRoutes(app: Application) { //A task Colle
   const router = Router()
   
   router.get("/boards/:boardId/columns/:columnId/tasks", readTaskCollection)
-  router.put("/boards/:boardId/columns/:columnId/tasks", updateTaskCollection)
+  router.patch("/boards/:boardId/columns/:columnId/tasks", updateTaskCollection)
 
   app.use(router)
 }

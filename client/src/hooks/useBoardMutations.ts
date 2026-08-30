@@ -99,7 +99,7 @@ export function useBoardMutations({
                 console.error("No board data found to update column")
                 return
             }
-            let newColumns = [previousData.columns]
+            let newColumns = [...previousData.columns]
             if (variables.newTitle !== undefined) {
                 newColumns = newColumns.map((column: ColumnType) => column.id === variables.columnId
                     ? { ...column, title: variables.newTitle }
@@ -111,6 +111,7 @@ export function useBoardMutations({
                     newColumns = reindexColumns(arrayMove(newColumns, oldIndex, variables.newIndex))
                 } else {
                     console.error(`Column with ID ${variables.columnId} not found for reordering.`)
+                    console.error(`Previoius data was ${JSON.stringify(newColumns)}`)
                 }
             }
             updateColumns(newColumns)

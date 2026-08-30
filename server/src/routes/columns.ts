@@ -7,7 +7,7 @@ export function registerColumnRoutes(app: Application) {
 
   router.post("/boards/:boardId/columns", createColumn)
   router.get("/boards/:boardId/columns/:columnId", readColumn)
-  router.put("/boards/:boardId/columns/:columnId", updateColumn)
+  router.patch("/boards/:boardId/columns/:columnId", updateColumn)
   router.delete("/boards/:boardId/columns/:columnId", deleteColumn)
 
   app.use(router)

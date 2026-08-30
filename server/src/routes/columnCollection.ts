@@ -6,7 +6,7 @@ export function registerCollumnCollectionRoutes(app: Application) { //A column C
   const router = Router()
   
   router.get("/boards/:boardId/columns", readColumnCollection)
-  router.put("/boards/:boardId/columns", updateColumnCollection)
+  router.patch("/boards/:boardId/columns", updateColumnCollection)
   
   app.use(router)
 }

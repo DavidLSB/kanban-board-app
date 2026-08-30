@@ -7,7 +7,7 @@ export function registerTasksRoutes(app: Application) {
 
   router.post("/boards/:boardId/columns/:columnId/tasks", createTask)
   router.get("/boards/:boardId/columns/:columnId/tasks/:taskId", readTask)
-  router.put("/boards/:boardId/columns/:columnId/tasks/:taskId", updateTask)
+  router.patch("/boards/:boardId/columns/:columnId/tasks/:taskId", updateTask)
   router.delete("/boards/:boardId/columns/:columnId/tasks/:taskId", deleteTask)
 
   app.use(router)
