@@ -342,7 +342,7 @@ function Board( {userId, boardId}: boardProps ) {
                     <button onClick={addColumn} style={{minHeight: "44px", minWidth: "66px", fontSize: "18px"}}>Add Column</button>
                 </div>
             </div>
-            <DragOverlay>
+            <DragOverlay dropAnimation={() => {}}>
                 {activeTask ? renderOverlayTask() : null}
             </DragOverlay>
         </DndContext>
