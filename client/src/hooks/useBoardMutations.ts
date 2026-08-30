@@ -31,10 +31,10 @@ export function useBoardMutations({
     updateColumns,
     setIsConflictSolved,
 }: UseBoardMutationsProps) {
-    const overwriteBoardMutation = useMutation({ mutationFn: (variables: {title: string,columns: ColumnType[]}) => {
+    const overwriteBoardMutation = useMutation({ mutationFn: (variables: {userId: string, title: string,columns: ColumnType[]}) => {
             const boardId = query?.data?.id
             if (!boardId) throw new Error("Board ID is not available")
-            return overwriteBoardAPI({id: boardId, title: variables.title, columns: variables.columns})
+            return overwriteBoardAPI({userId: variables.userId, id: boardId, title: variables.title, columns: variables.columns})
         },
         onSuccess: (updatedServerData, _variables) => {
             updateBoard({
@@ -44,10 +44,10 @@ export function useBoardMutations({
             setIsConflictSolved(true)
         }
     })
-    const createColumnMutation = useMutation({ mutationFn: (variables: {title: string, tempId: string}) => {
+    const createColumnMutation = useMutation({ mutationFn: (variables: {userId: string, title: string, tempId: string}) => {
             const boardId = query?.data?.id
             if (!boardId) throw new Error("Board ID is not available")
-            return newColumnAPI(boardId, variables.title)
+            return newColumnAPI(variables.userId, boardId, variables.title)
         },
         onMutate: async (variables) => {
             await queryClient.cancelQueries({ queryKey: ["board-data"] })
@@ -87,10 +87,10 @@ export function useBoardMutations({
             updateColumns(newColumns)
         }
     })
-    const updateColumnMutation = useMutation({ mutationFn: (variables: {columnId: string, newTitle?: string, newIndex?: number}) => {
+    const updateColumnMutation = useMutation({ mutationFn: (variables: {userId: string, columnId: string, newTitle?: string, newIndex?: number}) => {
             const boardId = query?.data?.id
             if (!boardId) throw new Error("Board ID is not available")
-            return updateColumnAPI(boardId, variables.columnId, variables.newTitle, variables.newIndex)
+            return updateColumnAPI(variables.userId, boardId, variables.columnId, variables.newTitle, variables.newIndex)
         },
         onMutate: async (variables) => {
             await queryClient.cancelQueries({ queryKey: ["board-data"] })
@@ -136,10 +136,10 @@ export function useBoardMutations({
             updateColumns(newColumns)
         }
     })
-    const deleteColumnMutation = useMutation({ mutationFn: (variables: {columnId: string}) => {
+    const deleteColumnMutation = useMutation({ mutationFn: (variables: {userId: string, columnId: string}) => {
             const boardId = query?.data?.id
             if (!boardId) throw new Error("Board ID is not available")
-            return deleteColumnAPI(boardId, variables.columnId)
+            return deleteColumnAPI(variables.userId, boardId, variables.columnId)
         },
         onMutate: async (variables) => {
             await queryClient.cancelQueries({ queryKey: ["board-data"] })
@@ -166,10 +166,10 @@ export function useBoardMutations({
             }
         }
     })
-    const createTaskMutation = useMutation({ mutationFn: (variables: {columnId: string, title: string, description: string, tempId: string}) => {
+    const createTaskMutation = useMutation({ mutationFn: (variables: {userId: string, columnId: string, title: string, description: string, tempId: string}) => {
             const boardId = query?.data?.id
             if (!boardId) throw new Error("Board ID is not available")
-            return newTaskAPI(boardId, variables.columnId, variables.title, variables.description)
+            return newTaskAPI(variables.userId, boardId, variables.columnId, variables.title, variables.description)
         },
         onMutate: async (variables) => {
             await queryClient.cancelQueries({ queryKey: ["board-data"] })
@@ -224,10 +224,10 @@ export function useBoardMutations({
             updateColumns(newColumns)
         }
     })
-    const updateTaskMutation = useMutation({ mutationFn: (variables: {columnId: string, taskId: string, newTitle?: string, newDescription?: string, newIndex?: number, newColumnId?: string, dragndropPrecalculatedColumns?: ColumnType[]}) => {
+    const updateTaskMutation = useMutation({ mutationFn: (variables: {userId: string, columnId: string, taskId: string, newTitle?: string, newDescription?: string, newIndex?: number, newColumnId?: string, dragndropPrecalculatedColumns?: ColumnType[]}) => {
             const boardId = query?.data?.id
             if (!boardId) throw new Error("Board ID is not available")
-            return updateTaskAPI(boardId, variables.columnId, variables.taskId, variables.newTitle, variables.newDescription, variables.newIndex, variables.newColumnId)
+            return updateTaskAPI(variables.userId, boardId, variables.columnId, variables.taskId, variables.newTitle, variables.newDescription, variables.newIndex, variables.newColumnId)
         },
         onMutate: async (variables) => {
             await queryClient.cancelQueries({ queryKey: ["board-data"] })
@@ -292,10 +292,10 @@ export function useBoardMutations({
             updateColumns(newColumns)
         }
     })
-    const deleteTaskMutation = useMutation({ mutationFn: (variables: {columnId: string, taskId: string}) => {
+    const deleteTaskMutation = useMutation({ mutationFn: (variables: {userId: string, columnId: string, taskId: string}) => {
             const boardId = query?.data?.id
             if (!boardId) throw new Error("Board ID is not available")
-            return deleteTaskAPI(boardId, variables.columnId, variables.taskId)
+            return deleteTaskAPI(variables.userId, boardId, variables.columnId, variables.taskId)
         },
         onMutate: async (variables) => {
             await queryClient.cancelQueries({ queryKey: ["board-data"] })

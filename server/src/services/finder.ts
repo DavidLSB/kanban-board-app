@@ -1,20 +1,18 @@
-import { getBoard } from "../controllers/board.js"
+import { getBoardBackend } from "../controllers/board.js"
 import type { Result } from "../types/Result.ts"
 import type { Board } from "../types/Board.ts"
 import type { Column } from "../types/Column.ts"
 import type { Task } from "../types/Task.ts"
 
-
-const board = getBoard()
-
-export function findBoard(boardId: string): Result<Board> {
-  if (board.id !== boardId) return { ok: false, error: "Board not found" }
+export function findBoard(userId:string, boardId: string): Result<Board> {
+  const board = getBoardBackend(userId, boardId)
+  if (!board) return { ok: false, error: "Board not found" }
   return { ok: true, data: board }
 }
 
-export function findColumn(boardId: string, columnId: string): Result<Column> {
+export function findColumn(userId:string, boardId: string, columnId: string): Result<Column> {
 
-  const board = findBoard(boardId)
+  const board = findBoard(userId, boardId)
 
   if (!board.ok) return board
 
@@ -26,8 +24,8 @@ export function findColumn(boardId: string, columnId: string): Result<Column> {
   return { ok: true, data: column }
 }
 
-export function findTask(boardId: string, columnId: string, taskId: string): Result<Task> {
-  const column = findColumn(boardId, columnId)
+export function findTask(userId:string, boardId: string, columnId: string, taskId: string): Result<Task> {
+  const column = findColumn(userId, boardId, columnId)
   if (!column.ok) return column
 
   const task = column.data.tasks.find(t => t.id === taskId)
@@ -38,8 +36,8 @@ export function findTask(boardId: string, columnId: string, taskId: string): Res
   return { ok: true, data: task }
 }
 
-export function findColumnWithTask(boardId: string, taskId: string): Result<Column> { 
-  const board = findBoard(boardId)
+export function findColumnWithTask(userId:string, boardId: string, taskId: string): Result<Column> { 
+  const board = findBoard(userId, boardId)
   if (!board.ok) return board
 
   for (const column of board.data.columns) {

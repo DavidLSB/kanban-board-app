@@ -5,8 +5,9 @@ import type {TaskParams as Params} from "../types/Params.js"
 //A column Collection does not have either a create or a delete.
 
 export function readColumnCollection(req: Request<Params>, res: Response) {
+  const userId = req.params.userId
   const boardId = req.params.boardId
-  const board = findBoard(boardId)
+  const board = findBoard(userId, boardId)
   if (!board.ok) {
     return res.status(404).json({
       error: board.error

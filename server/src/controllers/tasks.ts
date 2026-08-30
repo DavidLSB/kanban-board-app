@@ -5,9 +5,10 @@ import type {TaskParams as Params} from "../types/Params.js"
 import { findBoard, findColumn, findTask, findColumnWithTask } from "../services/finder.js"
 
 export function createTask(req: Request<Params>, res: Response) {
+  const userId = req.params.userId
   const boardId = req.params.boardId
   const columnId = req.params.columnId
-  const column = findColumn(boardId, columnId)
+  const column = findColumn(userId, boardId, columnId)
   if (!column.ok) {
     return res.status(404).json({error: column.error})
   }
@@ -24,10 +25,11 @@ export function createTask(req: Request<Params>, res: Response) {
 }
 
 export function readTask(req: Request<Params>, res: Response) {
+  const userId = req.params.userId
   const boardId = req.params.boardId
   const columnId = req.params.columnId
   const taskId = req.params.taskId
-  const task = findTask(boardId, columnId, taskId)
+  const task = findTask(userId, boardId, columnId, taskId)
   if (!task.ok) {
     return res.status(404).json({
       error: task.error
@@ -37,10 +39,11 @@ export function readTask(req: Request<Params>, res: Response) {
 }
 
 export function updateTask(req: Request<Params>, res: Response) {
+  const userId = req.params.userId
   const boardId = req.params.boardId
   const columnId = req.params.columnId
   const taskId = req.params.taskId
-  const task = findTask(boardId, columnId, taskId)
+  const task = findTask(userId, boardId, columnId, taskId)
   if (!task.ok) {
     return res.status(404).json({
       error: task.error
@@ -49,13 +52,13 @@ export function updateTask(req: Request<Params>, res: Response) {
   if (req.body.title !== undefined) task.data.title = req.body.title
   if (req.body.description !== undefined) task.data.description = req.body.description
   if (req.body.newColumnId !== undefined) {
-    const currentColumn = findColumn(boardId, columnId)
+    const currentColumn = findColumn(userId, boardId, columnId)
     if (!currentColumn.ok) {
       return res.status(404).json({
         error: currentColumn.error
       })
     }
-    const newColumn = findColumn(boardId, req.body.newColumnId)
+    const newColumn = findColumn(userId, boardId, req.body.newColumnId)
     if (!newColumn.ok) {
       return res.status(404).json({
         error: newColumn.error
@@ -66,7 +69,7 @@ export function updateTask(req: Request<Params>, res: Response) {
     newColumn.data.tasks.push(task.data)
   }
   const finalColumnId = req.body.newColumnId !== undefined ? req.body.newColumnId : columnId;
-  const columnToReorder = findColumn(boardId, finalColumnId)
+  const columnToReorder = findColumn(userId, boardId, finalColumnId)
   if (!columnToReorder.ok) {
     return res.status(404).json({
       error: columnToReorder.error
@@ -84,16 +87,17 @@ export function updateTask(req: Request<Params>, res: Response) {
 }
 
 export function deleteTask(req: Request<Params>, res: Response) {
+  const userId = req.params.userId
   const boardId = req.params.boardId
   const columnId = req.params.columnId
-  const column = findColumn(boardId, columnId)
+  const column = findColumn(userId, boardId, columnId)
   if (!column.ok) {
     return res.status(404).json({
       error: column.error
     })
   }
   const taskId = req.params.taskId
-  const task = findTask(boardId, columnId, taskId)
+  const task = findTask(userId, boardId, columnId, taskId)
   if (!task.ok) {
     return res.status(404).json({
       error: task.error

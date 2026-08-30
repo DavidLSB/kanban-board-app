@@ -19,10 +19,15 @@ type BoardDataType = {
     hasConflict: boolean
 }
 
-function Board() {
+type boardProps = {
+    userId: string
+    boardId: string
+}
+
+function Board( {userId, boardId}: boardProps ) {
     const [isConflictSolved, setIsConflictSolved] = useState(false)
     const queryClient = useQueryClient()
-    const query = useQuery({ queryKey: ["board-data"], queryFn: readBoardAPI,
+    const query = useQuery({ queryKey: ["board-data"], queryFn: () => readBoardAPI({userId, boardId}),
         select: (serverData) => processBoardDataComparison(serverData, isConflictSolved)
     })
     function loadBoard() {
@@ -99,15 +104,15 @@ function Board() {
     function addColumn() {
         if (!newColumnTitle.trim()) return
         const tempId = crypto.randomUUID()
-        createColumnMutation.mutate({title: newColumnTitle, tempId})
+        createColumnMutation.mutate({userId, title: newColumnTitle, tempId})
         setNewColumnTitle("")
     }  
     function updateColumnTitle(columnId: string, newTitle: string) {
         if (!newTitle.trim()) return
-        updateColumnMutation.mutate({columnId, newTitle})
+        updateColumnMutation.mutate({userId, columnId, newTitle})
     }
     function deleteColumn(columnId: string) {
-        deleteColumnMutation.mutate({columnId})
+        deleteColumnMutation.mutate({userId, columnId})
     }
     // ====================
     // TASKS
@@ -115,18 +120,18 @@ function Board() {
     function addTask(columnId: string, title: string, description: string) {
         if (!title.trim()) return
         const tempId = crypto.randomUUID()
-        createTaskMutation.mutate({columnId, title, description, tempId})
+        createTaskMutation.mutate({userId, columnId, title, description, tempId})
     }
     function updateTaskTitle( taskId: string, columnId: string, newTitle: string ) {
         if (!newTitle.trim()) return
-        updateTaskMutation.mutate({ columnId, taskId, newTitle })
+        updateTaskMutation.mutate({ userId, columnId, taskId, newTitle })
     }
     function updateTaskDescription( taskId: string, columnId: string, newDescription: string ) {
         if (!newDescription.trim()) return
-        updateTaskMutation.mutate({ columnId, taskId, newDescription })
+        updateTaskMutation.mutate({ userId, columnId, taskId, newDescription })
     }
     function deleteTask(taskId: string, columnId: string) {
-        deleteTaskMutation.mutate({ columnId, taskId })
+        deleteTaskMutation.mutate({ userId, columnId, taskId })
     }
     // ====================
     // TASKS MOVEMENT
@@ -143,7 +148,7 @@ function Board() {
         if (targetIndex < 0 || targetIndex >= columns.length) return
 
         const targetColumn = columns[targetIndex].id
-        updateTaskMutation.mutate({ columnId: fromColumn, taskId, newColumnId: targetColumn })
+        updateTaskMutation.mutate({ userId, columnId: fromColumn, taskId, newColumnId: targetColumn })
     }
     // ====================
     // COLUMNS MOVEMENT
@@ -161,7 +166,7 @@ function Board() {
 
         if (targetIndex < 0 || targetIndex >= columns.length) return
 
-        updateColumnMutation.mutate({ columnId, newIndex: targetIndex })
+        updateColumnMutation.mutate({ userId, columnId, newIndex: targetIndex })
     }
     // ====================
     // DRAG & DROP
@@ -183,7 +188,7 @@ function Board() {
             const oldIndex = columns.findIndex(c => c.id === active.id)
             const newIndex = columns.findIndex(c => c.id === over.id)
             if (oldIndex !== newIndex) {
-                updateColumnMutation.mutate({ columnId: active.id, newIndex })
+                updateColumnMutation.mutate({ userId, columnId: active.id, newIndex })
             }
         } else {
             const taskId = active.id
@@ -207,15 +212,15 @@ function Board() {
                 const suffix = over.id.slice(-4)
                 if (suffix === "-top") {
                     const [newerColumns, newTaskIndex] = reorderTask(active.id, over.data.current.taskId, "above", newColumns)
-                    updateTaskMutation.mutate({ columnId: sourceColumnId, taskId, newIndex: newTaskIndex, newColumnId: targetColumnId, dragndropPrecalculatedColumns: newerColumns })
+                    updateTaskMutation.mutate({ userId, columnId: sourceColumnId, taskId, newIndex: newTaskIndex, newColumnId: targetColumnId, dragndropPrecalculatedColumns: newerColumns })
                     return
                 } else {
                     const [newerColumns, newTaskIndex] = reorderTask(active.id, over.data.current.taskId, "below", newColumns)
-                    updateTaskMutation.mutate({ columnId: sourceColumnId, taskId, newIndex: newTaskIndex, newColumnId: targetColumnId, dragndropPrecalculatedColumns: newerColumns })
+                    updateTaskMutation.mutate({ userId, columnId: sourceColumnId, taskId, newIndex: newTaskIndex, newColumnId: targetColumnId, dragndropPrecalculatedColumns: newerColumns })
                     return
                 }
             } else {
-                updateTaskMutation.mutate({ columnId: sourceColumnId, taskId, newColumnId: targetColumnId })
+                updateTaskMutation.mutate({ userId, columnId: sourceColumnId, taskId, newColumnId: targetColumnId })
             }
         }
     }
@@ -260,7 +265,7 @@ function Board() {
         if (!storedBoard) return
 
         const localColumns = storedBoard?.columns || []
-        overwriteBoardMutation.mutate({title: query.data?.title || "My board", columns: localColumns})
+        overwriteBoardMutation.mutate({userId, title: query.data?.title || "My board", columns: localColumns})
     }
     if (query.isLoading) {
         return <div>Loading...</div>

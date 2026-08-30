@@ -5,10 +5,10 @@ import { createTask, readTask, updateTask, deleteTask } from "../controllers/tas
 export function registerTasksRoutes(app: Application) {
   const router = Router()
 
-  router.post("/boards/:boardId/columns/:columnId/tasks", createTask)
-  router.get("/boards/:boardId/columns/:columnId/tasks/:taskId", readTask)
-  router.patch("/boards/:boardId/columns/:columnId/tasks/:taskId", updateTask)
-  router.delete("/boards/:boardId/columns/:columnId/tasks/:taskId", deleteTask)
+  router.post("/users/:userId/boards/:boardId/columns/:columnId/tasks", createTask)
+  router.get("/users/:userId/boards/:boardId/columns/:columnId/tasks/:taskId", readTask)
+  router.patch("/users/:userId/boards/:boardId/columns/:columnId/tasks/:taskId", updateTask)
+  router.delete("/users/:userId/boards/:boardId/columns/:columnId/tasks/:taskId", deleteTask)
 
   app.use(router)
 }

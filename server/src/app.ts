@@ -5,12 +5,13 @@ import { registerColumnRoutes } from "./routes/columns.js"
 import { registerCollumnCollectionRoutes } from "./routes/columnCollection.js"
 import { registerTasksRoutes } from "./routes/tasks.js"
 import { registerTasksCollectionRoutes } from "./routes/tasksCollection.js"
-
+import { registerUserRoutes } from "./routes/user.js"
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 
+registerUserRoutes(app)
 registerBoardRoutes(app)
 registerColumnRoutes(app)
 registerCollumnCollectionRoutes(app)

@@ -5,8 +5,9 @@ import type {ColumnParams as Params} from "../types/Params.js"
 import { findBoard, findColumn } from "../services/finder.js"
 
 export function createColumn(req: Request<Params>, res: Response) {
+  const userId = req.params.userId
   const boardId = req.params.boardId
-  const board = findBoard(boardId)
+  const board = findBoard(userId, boardId)
   if (!board.ok)
     return res.status(404).json({
       error: board.error
@@ -23,9 +24,10 @@ export function createColumn(req: Request<Params>, res: Response) {
 }
 
 export function readColumn(req: Request<Params>, res: Response) {
+  const userId = req.params.userId
   const boardId = req.params.boardId
   const columnId = req.params.columnId
-  const column = findColumn(boardId, columnId)
+  const column = findColumn(userId, boardId, columnId)
   if (!column.ok) {
     return res.status(404).json({error: column.error})
   }
@@ -33,13 +35,14 @@ export function readColumn(req: Request<Params>, res: Response) {
 }
 
 export function updateColumn(req: Request<Params>, res: Response) {
+  const userId = req.params.userId
   const boardId = req.params.boardId
   const columnId = req.params.columnId
-  const column = findColumn(boardId, columnId)
+  const column = findColumn(userId, boardId, columnId)
   if (!column.ok) {
     return res.status(404).json({ error: column.error })
   }
-  const board = findBoard(boardId)
+  const board = findBoard(userId, boardId)
   if (!board.ok) {
     return res.status(404).json({ error: board.error })
   }
@@ -54,15 +57,16 @@ export function updateColumn(req: Request<Params>, res: Response) {
 }
 
 export function deleteColumn(req: Request<Params>, res: Response) {
+  const userId = req.params.userId
   const boardId = req.params.boardId
-  const board = findBoard(boardId)
+  const board = findBoard(userId, boardId)
   if (!board.ok) {
     return res.status(404).json({
       error: board.error
     })
   }
   const columnId = req.params.columnId
-  const column = findColumn(boardId, columnId)
+  const column = findColumn(userId, boardId, columnId)
   if (!column.ok) {
     return res.status(404).json({
       error: column.error

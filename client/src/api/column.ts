@@ -1,8 +1,8 @@
 import type { ColumnType } from "../components/Column"
 const API_URL = import.meta.env.VITE_API_URL;
 
-export async function newColumnAPI(boardId: string, title: string): Promise<ColumnType> {
-    const response = await fetch(`${API_URL}/boards/${boardId}/columns`, {
+export async function newColumnAPI(userId: string, boardId: string, title: string): Promise<ColumnType> {
+    const response = await fetch(`${API_URL}/users/${userId}/boards/${boardId}/columns`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -17,11 +17,11 @@ export async function newColumnAPI(boardId: string, title: string): Promise<Colu
     return response.json();
 }
 
-export async function updateColumnAPI(boardId: string, columnId: string, newTitle?: string, newIndex?: number): Promise<ColumnType> {
+export async function updateColumnAPI(userId: string, boardId: string, columnId: string, newTitle?: string, newIndex?: number): Promise<ColumnType> {
     const body: Record<string, any> = {};
     if (newTitle !== undefined) body.title = newTitle;
     if (newIndex !== undefined) body.index = newIndex;
-    const response = await fetch(`${API_URL}/boards/${boardId}/columns/${columnId}`, {
+    const response = await fetch(`${API_URL}/users/${userId}/boards/${boardId}/columns/${columnId}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
@@ -35,8 +35,8 @@ export async function updateColumnAPI(boardId: string, columnId: string, newTitl
     return response.json();
 }
 
-export async function deleteColumnAPI(boardId: string, columnId: string): Promise<ColumnType[]> {
-    const response = await fetch(`${API_URL}/boards/${boardId}/columns/${columnId}`, {
+export async function deleteColumnAPI(userId: string, boardId: string, columnId: string): Promise<ColumnType[]> {
+    const response = await fetch(`${API_URL}/users/${userId}/boards/${boardId}/columns/${columnId}`, {
         method: "DELETE",
     });
     

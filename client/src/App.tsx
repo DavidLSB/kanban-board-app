@@ -1,10 +1,10 @@
-import Board from "./components/Board"
+import User from "./components/User"
 
 function App() {
   return (
     <div>
       <h1>Kanban Task manager</h1>
-      <Board />
+      <User />
     </div>
   )
 }
