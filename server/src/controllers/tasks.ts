@@ -10,7 +10,13 @@ export function createTask(req: Request<Params>, res: Response) {
   const columnId = req.params.columnId
   const column = findColumn(userId, boardId, columnId)
   if (!column.ok) {
-    return res.status(404).json({error: column.error})
+    return res.status(column.errorCode).json({error: column.error})
+  }
+  if (!req.body.title || req.body.title.trim() === "") {
+    return res.status(400).json({
+      error: "Bad request",
+      message: "Missing title in request body"
+    })
   }
   const newTask: Task = {
     id: uuid(),
@@ -31,7 +37,7 @@ export function readTask(req: Request<Params>, res: Response) {
   const taskId = req.params.taskId
   const task = findTask(userId, boardId, columnId, taskId)
   if (!task.ok) {
-    return res.status(404).json({
+    return res.status(task.errorCode).json({
       error: task.error
     })
   }
@@ -45,44 +51,54 @@ export function updateTask(req: Request<Params>, res: Response) {
   const taskId = req.params.taskId
   const task = findTask(userId, boardId, columnId, taskId)
   if (!task.ok) {
-    return res.status(404).json({
+    return res.status(task.errorCode).json({
       error: task.error
     })
   }
-  if (req.body.title !== undefined) task.data.title = req.body.title
-  if (req.body.description !== undefined) task.data.description = req.body.description
-  if (req.body.newColumnId !== undefined) {
-    const currentColumn = findColumn(userId, boardId, columnId)
-    if (!currentColumn.ok) {
-      return res.status(404).json({
-        error: currentColumn.error
+  const columnJump = req.body.newColumnId !== undefined 
+    ? {
+        currentColumn: findColumn(userId, boardId, columnId),
+        newColumn: findColumn(userId, boardId, req.body.newColumnId)
+      }
+    : null
+  if (columnJump !== null) {
+    if (!columnJump.currentColumn.ok) {
+      return res.status(columnJump.currentColumn.errorCode).json({
+        error: `${columnJump.currentColumn.error} (Source column)`
       })
     }
-    const newColumn = findColumn(userId, boardId, req.body.newColumnId)
-    if (!newColumn.ok) {
-      return res.status(404).json({
-        error: newColumn.error
+    if (!columnJump.newColumn.ok) {
+      return res.status(columnJump.newColumn.errorCode).json({
+        error: `${columnJump.newColumn.error} (Target column)`
       })
     }
-    currentColumn.data.tasks = currentColumn.data.tasks.filter(t => t.id !== taskId).map((t, index) => ({ ...t, index }))
-    task.data.index = newColumn.data.tasks.length
-    newColumn.data.tasks.push(task.data)
   }
-  const finalColumnId = req.body.newColumnId !== undefined ? req.body.newColumnId : columnId;
-  const columnToReorder = findColumn(userId, boardId, finalColumnId)
+  const movement = req.body.index !== undefined || req.body.newColumnId !== undefined
+    ? true : false
+  const columnToReorder = columnJump?.newColumn || findColumn(userId, boardId, columnId)
   if (!columnToReorder.ok) {
-    return res.status(404).json({
+    return res.status(columnToReorder.errorCode).json({
       error: columnToReorder.error
     })
   }
-  if (req.body.index !== undefined) {
-    const targetIndex = req.body.index
-    const tasks = columnToReorder.data.tasks.filter(t => t.id !== taskId)
-    tasks.splice(targetIndex, 0, task.data)
-    columnToReorder.data.tasks = tasks.map((t, index) => ({ ...t, index }))
-  } else {
-    columnToReorder.data.tasks = columnToReorder.data.tasks.map((t, index) => ({ ...t, index }))
+  
+  if (columnJump !== null && columnJump.currentColumn.ok && columnJump.newColumn.ok) {
+    columnJump.currentColumn.data.tasks = columnJump.currentColumn.data.tasks.filter(t => t.id !== taskId).map((t, index) => ({ ...t, index }))
+    task.data.index = columnJump.newColumn.data.tasks.length
+    columnJump.newColumn.data.tasks.push(task.data)
   }
+  if (movement) {
+    if (req.body.index !== undefined) {
+      const targetIndex = req.body.index
+      const tasks = columnToReorder.data.tasks.filter(t => t.id !== taskId)
+      tasks.splice(targetIndex, 0, task.data)
+      columnToReorder.data.tasks = tasks.map((t, index) => ({ ...t, index }))
+    } else {
+      columnToReorder.data.tasks = columnToReorder.data.tasks.map((t, index) => ({ ...t, index }))
+    }
+  }
+  if (req.body.title !== undefined) task.data.title = req.body.title
+  if (req.body.description !== undefined) task.data.description = req.body.description
   res.status(200).json(task.data)
 }
 
@@ -92,14 +108,14 @@ export function deleteTask(req: Request<Params>, res: Response) {
   const columnId = req.params.columnId
   const column = findColumn(userId, boardId, columnId)
   if (!column.ok) {
-    return res.status(404).json({
+    return res.status(column.errorCode).json({
       error: column.error
     })
   }
   const taskId = req.params.taskId
   const task = findTask(userId, boardId, columnId, taskId)
   if (!task.ok) {
-    return res.status(404).json({
+    return res.status(task.errorCode).json({
       error: task.error
     })
   }

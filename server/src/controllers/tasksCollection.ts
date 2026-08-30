@@ -11,7 +11,7 @@ export function readTaskCollection(req: Request<Params>, res: Response) {
   const columnId = req.params.columnId
   const column = findColumn(userId, boardId, columnId)
   if (!column.ok) {
-    return res.status(404).json({
+    return res.status(column.errorCode).json({
       error: column.error
     })
   }

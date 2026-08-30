@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { findBoard } from "../services/finder.js"
+import {getBoardBackend} from "./board.js"
 import type {TaskParams as Params} from "../types/Params.js"
 
 //A column Collection does not have either a create or a delete.
@@ -9,7 +10,7 @@ export function readColumnCollection(req: Request<Params>, res: Response) {
   const boardId = req.params.boardId
   const board = findBoard(userId, boardId)
   if (!board.ok) {
-    return res.status(404).json({
+    return res.status(board.errorCode).json({
       error: board.error
     })
   }

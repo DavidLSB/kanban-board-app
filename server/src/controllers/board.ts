@@ -6,15 +6,18 @@ let mockBoardDb = {
   Boards: {} as Record<string, Board>
 }
 
-export function getBoardBackend(userId: string, boardId: string): Board | null {
-  const user = getUserBackend(userId)
-  const userOwnsBoard = user.boardsIds.find(possibleBoardId => boardId === possibleBoardId)
-  if (!userOwnsBoard) {
-    return null
-  }
+export function getBoardBackend(userId: string, boardId: string): Board | number {
   const board = mockBoardDb.Boards[boardId]
   if (!board) {
-    return null
+    return 404
+  }
+  const user = getUserBackend(userId)
+  if (!user) {
+    return 401
+  }
+  const userOwnsBoard = user.boardsIds.find(possibleBoardId => boardId === possibleBoardId)
+  if (!userOwnsBoard) {
+    return 403
   }
   return board
 }
@@ -37,6 +40,28 @@ export function createBoardBackend(userId: string, boardId: string): Board | nul
   return newBoard
 }
 
+function nonFoundBoardErrors(userId: string, boardId: string, res: Response) {
+  const boardExists = mockBoardDb.Boards[boardId]
+  if (!boardExists) {
+    return res.status(404).json({
+      error: "Board not found",
+      message: "The requested board does not exist"
+    })
+  } else {
+    if (!getUserBackend(userId)) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "The user does not exist"
+      })
+    } else {
+      return res.status(403).json({
+        error: "Forbidden",
+        message: "The user does not have permission to access the requested board"
+      })
+    }
+  }
+}
+
 export function createBoard(req: Request, res: Response) {
   return res.status(501).json({
     error: "Not implemented",
@@ -53,13 +78,9 @@ export function readBoard(req: Request, res: Response) {
       message: "The request is missing a valid userId or boardId"
     })
   }
-
   const board = getBoardBackend(userId, boardId)
-  if (!board) {
-    return res.status(404).json({
-      error: "Board not found",
-      message: "The requested board does not exist or the user does not have access to it"
-    })
+  if (typeof board === "number") {
+    return nonFoundBoardErrors(userId, boardId, res)
   }
   return res.status(200).json(board)
 }
@@ -91,11 +112,8 @@ export function overwriteBoard(req: Request, res: Response) {
   }
 
   const board = getBoardBackend(userId, boardId)
-  if (!board) {
-    return res.status(404).json({
-      error: "Board not found",
-      message: "The requested board does not exist or the user does not have access to it"
-    })
+   if (typeof board === "number") {
+    return nonFoundBoardErrors(userId, boardId, res)
   }
   const newBoard: Board = req.body
   board.title = newBoard.title

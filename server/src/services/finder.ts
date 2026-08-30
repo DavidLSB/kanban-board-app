@@ -6,7 +6,18 @@ import type { Task } from "../types/Task.ts"
 
 export function findBoard(userId:string, boardId: string): Result<Board> {
   const board = getBoardBackend(userId, boardId)
-  if (!board) return { ok: false, error: "Board not found" }
+  if (typeof board === "number") {
+    if (board === 404) {
+      return { ok: false, error: "Board not found", errorCode: 404 }
+    } else if (board === 401) {
+      return { ok: false, error: "User not found", errorCode: 401 }
+    } else if (board === 403) {
+      return { ok: false, error: "User not authorized", errorCode: 403 }
+    }
+    else {
+      throw new Error(`Unexpected error (${board}) found while finding board`)
+    }
+  }
   return { ok: true, data: board }
 }
 
@@ -19,7 +30,7 @@ export function findColumn(userId:string, boardId: string, columnId: string): Re
   const column = board.data.columns.find(c => c.id === columnId)
 
   if (!column)
-    return { ok: false, error: "Column not found" }
+    return { ok: false, error: "Column not found", errorCode: 404 }
 
   return { ok: true, data: column }
 }
@@ -31,7 +42,7 @@ export function findTask(userId:string, boardId: string, columnId: string, taskI
   const task = column.data.tasks.find(t => t.id === taskId)
 
   if (!task)
-    return { ok: false, error: "Task not found" }
+    return { ok: false, error: "Task not found", errorCode: 404 }
 
   return { ok: true, data: task }
 }
@@ -47,5 +58,5 @@ export function findColumnWithTask(userId:string, boardId: string, taskId: strin
     }
   }
 
-  return { ok: false, error: "Task not found" }
+  return { ok: false, error: "Task not found", errorCode: 404 }
 }
