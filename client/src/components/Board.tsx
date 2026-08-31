@@ -295,6 +295,7 @@ function Board( {userId, boardId}: boardProps ) {
             collisionDetection={pointerWithin}
         >
             <h1>{query?.data?.title}</h1>
+            <h3>Click on a Colum title or task title/description to edit</h3>
             <div 
                 style={{ 
                     overflowX: "auto",
