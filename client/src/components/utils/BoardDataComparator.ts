@@ -1,6 +1,8 @@
 export function processBoardDataComparison(serverData: any, isConflictSolved: boolean) {
     const localData = localStorage.getItem("board-data")
-    
+    console.log(isConflictSolved)
+    console.log("Server Data:", JSON.stringify(serverData))
+    console.log("Local Data:", localData)
     if (isConflictSolved) {
         return {...serverData, hasConflict: false}
     }
@@ -24,6 +26,10 @@ export function processBoardDataComparison(serverData: any, isConflictSolved: bo
         }
     }
     if (!serverData && !localData) {
+        return {...serverData, hasConflict: false}
+    }
+    if (serverData && !localData) {
+        localStorage.setItem("board-data", JSON.stringify(serverData))
         return {...serverData, hasConflict: false}
     }
     return {...serverData, hasConflict: true}

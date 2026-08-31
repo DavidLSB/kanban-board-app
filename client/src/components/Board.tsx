@@ -274,8 +274,6 @@ function Board( {userId, boardId}: boardProps ) {
         const storedBoard = JSON.parse(localStorage.getItem("board-data") || "{}")
         const localColumns = storedBoard?.columns || []
         const serverColumns = query.data?.columns || []
-        console.log(JSON.stringify(serverColumns))
-        console.log(JSON.stringify(query.data))
         return (
             <BoardConflictView
                 localColumns={localColumns}
@@ -296,7 +294,6 @@ function Board( {userId, boardId}: boardProps ) {
             onDragCancel={() => setPreview(null)}
             collisionDetection={pointerWithin}
         >
-            <h1>{query.data?.hasConflict?.toString()}</h1>
             <h1>{query?.data?.title}</h1>
             <div 
                 style={{ 
