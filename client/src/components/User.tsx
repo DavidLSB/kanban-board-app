@@ -3,10 +3,13 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { createUserAPI, verifyUserAPI } from "../api/user"
 import Board from "./Board"
 
+const CURRENT_LOCAL_STORAGE_VERSION = 2
+
 export type UserType = {
     id: string
     boardsIds: string[]
     selectedBoardId: string
+    localStorageVersion: number
 }
 
 function User() {
@@ -14,7 +17,14 @@ function User() {
         const stored = localStorage.getItem("user-data")
         if (stored) {
             try {
-                return JSON.parse(stored)
+                const storedData = JSON.parse(stored)
+                if (storedData.localStorageVersion === CURRENT_LOCAL_STORAGE_VERSION) {
+                    return JSON.parse(stored)
+                } else {
+                    localStorage.removeItem("user-data")
+                    localStorage.removeItem("board-data")
+                    return null
+                }
             } catch (error) {
                 console.error("Failed to parse user data from localStorage:", error)
                 localStorage.removeItem("user-data")
@@ -26,7 +36,7 @@ function User() {
     const createUserMutation = useMutation({
         mutationFn: createUserAPI,
         onSuccess: (newUser) => {
-            localStorage.setItem("user-data", JSON.stringify(newUser))
+            localStorage.setItem("user-data", JSON.stringify({...newUser, localStorageVersion: CURRENT_LOCAL_STORAGE_VERSION}))
             setUser(newUser)
         },
         onError: (error) => {
