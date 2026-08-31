@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { createUserAPI, verifyUserAPI } from "../api/user"
 import Board from "./Board"
 
-const CURRENT_LOCAL_STORAGE_VERSION = 2
+const CURRENT_LOCAL_STORAGE_VERSION = 3
 
 export type UserType = {
     id: string
@@ -19,7 +19,7 @@ function User() {
             try {
                 const storedData = JSON.parse(stored)
                 if (storedData.localStorageVersion === CURRENT_LOCAL_STORAGE_VERSION) {
-                    return JSON.parse(stored)
+                    return storedData
                 } else {
                     localStorage.removeItem("user-data")
                     localStorage.removeItem("board-data")
@@ -30,7 +30,9 @@ function User() {
                 localStorage.removeItem("user-data")
                 return null
             }
-        }    
+        } else {
+            localStorage.removeItem("board-data")
+        }
         return null
     })
     const createUserMutation = useMutation({
