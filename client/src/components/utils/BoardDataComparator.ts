@@ -1,8 +1,5 @@
 export function processBoardDataComparison(serverData: any, isConflictSolved: boolean) {
     const localData = localStorage.getItem("board-data")
-    console.log(isConflictSolved)
-    console.log("Server Data:", JSON.stringify(serverData))
-    console.log("Local Data:", localData)
     if (isConflictSolved) {
         return {...serverData, hasConflict: false}
     }
