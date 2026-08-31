@@ -9,7 +9,7 @@ import { registerUserRoutes } from "./routes/user.js"
 const app = express()
 
 app.use(cors({
-    origin: 'https://kanban-board-app-13z4.vercel.app/',
+    origin: 'https://kanban-board-app-13z4.vercel.app',
     credentials: true
 }))
 app.use(express.json())
