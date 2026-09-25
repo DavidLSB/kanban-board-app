@@ -15,8 +15,7 @@ export function readTaskCollection(req: Request<Params>, res: Response) {
       error: column.error
     })
   }
-  res.json(column.data.tasks)
-  res.status(200)
+  res.status(200).json(column.data.tasks)
 }
 
 export function updateTaskCollection(req: Request, res: Response) {
