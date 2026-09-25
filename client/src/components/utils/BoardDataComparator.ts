@@ -18,7 +18,7 @@ function onlyIdsDiffer(localData:any, serverData:any) {
 export function processBoardDataComparison(serverData: any, isConflictSolved: boolean) {
     const localData = localStorage.getItem("board-data")
     if (isConflictSolved) {
-        return {...serverData, hasConflict: false}
+        return {...serverData, hasConflict: false, shouldSyncLocal: false}
     }
     if (serverData && localData) {
         try {
@@ -35,21 +35,19 @@ export function processBoardDataComparison(serverData: any, isConflictSolved: bo
             }
             const differs = JSON.stringify(localComparisonTarget) !== JSON.stringify(serverComparisonTarget)
             if (!onlyIdsDiffer(localComparisonTarget, serverComparisonTarget)) {
-                return {...serverData, hasConflict: differs}
+                return {...serverData, hasConflict: differs, shouldSyncLocal: false}
             } else {
-                localStorage.setItem("board-data", JSON.stringify(serverData))
-                return {...serverData, hasConflict: false}
+                return {...serverData, hasConflict: false, shouldSyncLocal: true}
             }
         } catch {
-            return {...serverData, hasConflict: true}
+            return {...serverData, hasConflict: true, shouldSyncLocal: false}
         }
     }
     if (!serverData && !localData) {
-        return {...serverData, hasConflict: false}
+        return {...serverData, hasConflict: false, shouldSyncLocal: false}
     }
     if (serverData && !localData) {
-        localStorage.setItem("board-data", JSON.stringify(serverData))
-        return {...serverData, hasConflict: false}
+        return {...serverData, hasConflict: false, shouldSyncLocal: true}
     }
-    return {...serverData, hasConflict: true}
+    return {...serverData, hasConflict: true, shouldSyncLocal: false}
 }

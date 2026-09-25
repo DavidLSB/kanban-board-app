@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DndContext, DragOverlay,  pointerWithin, TouchSensor, MouseSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { useQueryClient, useQuery } from "@tanstack/react-query"
@@ -27,9 +27,15 @@ type boardProps = {
 function Board( {userId, boardId}: boardProps ) {
     const [isConflictSolved, setIsConflictSolved] = useState(false)
     const queryClient = useQueryClient()
-    const query = useQuery({ queryKey: ["board-data", userId, boardId], queryFn: () => readBoardAPI({userId, boardId}), enabled: !!userId && !!boardId
+    const query = useQuery({ queryKey: ["board-data", userId, boardId], queryFn: () => readBoardAPI({userId, boardId}), enabled: !!userId && !!boardId,
         select: (serverData) => processBoardDataComparison(serverData, isConflictSolved)
     })
+    useEffect(() => {
+        if (query.data?.shouldSyncLocal) {
+            const { hasConflict, shouldSyncLocal, ...serverBoard } = query.data
+            localStorage.setItem("board-data", JSON.stringify(serverBoard))
+        }
+    }, [query.data])
     function loadBoard() {
         const prevData = localStorage.getItem("board-data")
         if (prevData && prevData !== "undefined") {
@@ -63,13 +69,13 @@ function Board( {userId, boardId}: boardProps ) {
     )
     function updateBoard(nextBoardData: BoardDataType) {
         localStorage.setItem("board-data", JSON.stringify(nextBoardData))
-        queryClient.setQueryData(["board-data"], (oldData: any) => ({
+        queryClient.setQueryData(["board-data", userId, boardId], (oldData: any) => ({
             ...(oldData || {}),
             ...nextBoardData
         }))
     }
     function updateColumns(nextColumns: ColumnType[]) {
-        const currentBoard: any = queryClient.getQueryData(["board-data"]) || loadBoard()
+        const currentBoard: any = queryClient.getQueryData(["board-data", userId, boardId]) || loadBoard()
         if (!currentBoard) {
             console.error("No board data found to update columns")
             return
