@@ -27,7 +27,7 @@ type boardProps = {
 function Board( {userId, boardId}: boardProps ) {
     const [isConflictSolved, setIsConflictSolved] = useState(false)
     const queryClient = useQueryClient()
-    const query = useQuery({ queryKey: ["board-data"], queryFn: () => readBoardAPI({userId, boardId}),
+    const query = useQuery({ queryKey: ["board-data", userId, boardId], queryFn: () => readBoardAPI({userId, boardId}), enabled: !!userId && !!boardId
         select: (serverData) => processBoardDataComparison(serverData, isConflictSolved)
     })
     function loadBoard() {
