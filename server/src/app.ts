@@ -6,10 +6,13 @@ import { registerCollumnCollectionRoutes } from "./routes/columnCollection.js"
 import { registerTasksRoutes } from "./routes/tasks.js"
 import { registerTasksCollectionRoutes } from "./routes/tasksCollection.js"
 import { registerUserRoutes } from "./routes/user.js"
+
 const app = express()
 
+const allowedOrigin = process.env.CLIENT_URL
+
 app.use(cors({
-    origin: 'https://kanban-board-app-13z4.vercel.app',
+    origin: allowedOrigin,
     credentials: true
 }))
 app.use(express.json())
